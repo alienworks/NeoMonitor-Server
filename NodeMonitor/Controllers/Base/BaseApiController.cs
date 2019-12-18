@@ -2,10 +2,9 @@
 
 namespace NodeMonitor.Controllers.Base
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class BaseApiController : Controller
-    {
-
-    }
+	[Route("api/[controller]")]
+	[ApiController]
+	public class BaseApiController : Controller
+	{
+	}
 }

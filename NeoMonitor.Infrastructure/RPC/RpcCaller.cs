@@ -1,57 +1,57 @@
-﻿using Newtonsoft.Json;
-using NeoState.Common.RPC;
-using System;
+﻿using System;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using NeoState.Common.RPC;
+using Newtonsoft.Json;
 
 namespace NeoMonitor.Infrastructure.RPC
 {
-    public class RpcCaller
-    {
-        private static readonly HttpClient Http = new HttpClient();
+	public class RpcCaller
+	{
+		private static readonly HttpClient Http = new HttpClient();
 
-        public static async Task<T> MakeRPCCall<T>(string endpoint, string method = "getblockcount")
-        {
-            var rpcRequest = new RPCRequestBody
-            {
-                Method = method
-            };
+		public static async Task<T> MakeRPCCall<T>(string endpoint, string method = "getblockcount")
+		{
+			var rpcRequest = new RPCRequestBody
+			{
+				Method = method
+			};
 
-            var response = await SendRPCCall(HttpMethod.Post, endpoint, rpcRequest);
-            if (response.IsSuccessStatusCode)
-            {
-                var result = await response.Content.ReadAsStringAsync();
-                var serializedResult = JsonConvert.DeserializeObject<T>(result);
-                return serializedResult;
-            }
+			var response = await SendRPCCall(HttpMethod.Post, endpoint, rpcRequest);
+			if (response.IsSuccessStatusCode)
+			{
+				var result = await response.Content.ReadAsStringAsync();
+				var serializedResult = JsonConvert.DeserializeObject<T>(result);
+				return serializedResult;
+			}
 
-            return default(T);
-        }
+			return default(T);
+		}
 
-        public static async Task<HttpResponseMessage> SendRPCCall(HttpMethod httpMethod, string endpoint, object rpcData)
-        {
-            HttpResponseMessage response;
-            try
-            {
-                var req = new HttpRequestMessage(httpMethod, $"{endpoint}");
-                var data = JsonConvert.SerializeObject(rpcData, new JsonSerializerSettings
-                {
-                    NullValueHandling = NullValueHandling.Ignore,
-                    DefaultValueHandling = DefaultValueHandling.Ignore
-                });
+		public static async Task<HttpResponseMessage> SendRPCCall(HttpMethod httpMethod, string endpoint, object rpcData)
+		{
+			HttpResponseMessage response;
+			try
+			{
+				var req = new HttpRequestMessage(httpMethod, $"{endpoint}");
+				var data = JsonConvert.SerializeObject(rpcData, new JsonSerializerSettings
+				{
+					NullValueHandling = NullValueHandling.Ignore,
+					DefaultValueHandling = DefaultValueHandling.Ignore
+				});
 
-                //Http.Timeout = TimeSpan.FromSeconds(100000000);
-                req.Content = new StringContent(data, Encoding.Default, "application/json");
-                response = await Http.SendAsync(req);
-            }
-            catch (Exception e)
-            {
-                response = new HttpResponseMessage(HttpStatusCode.BadRequest);
-            }
+				//Http.Timeout = TimeSpan.FromSeconds(100000000);
+				req.Content = new StringContent(data, Encoding.Default, "application/json");
+				response = await Http.SendAsync(req);
+			}
+			catch (Exception e)
+			{
+				response = new HttpResponseMessage(HttpStatusCode.BadRequest);
+			}
 
-            return response;
-        }
-    }
+			return response;
+		}
+	}
 }

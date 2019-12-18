@@ -4,15 +4,15 @@ using NodeMonitor.ViewModels;
 
 namespace NeoMonitor.Infrastructure.Mapping
 {
-    internal class NodeConfig
-    {
-        public static void InitMap(IMapperConfigurationExpression cfg)
-        {
-            cfg.CreateMap<Node, NodeViewModel>();
+	internal class NodeConfig
+	{
+		public static void InitMap(IMapperConfigurationExpression cfg)
+		{
+			cfg.CreateMap<Node, NodeViewModel>();
 
-            cfg.CreateMap<NodeViewModel, Node>();
+			cfg.CreateMap<NodeViewModel, Node>();
 
-            cfg.CreateMap<NodeException, NodeException>();
-        }
-    }
+			cfg.CreateMap<NodeException, NodeException>();
+		}
+	}
 }

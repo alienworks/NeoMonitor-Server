@@ -13,61 +13,61 @@ using NodeMonitor.Services;
 
 namespace NodeMonitor
 {
-    public class Startup
-    {
-        public IConfiguration Configuration { get; }
+	public class Startup
+	{
+		public IConfiguration Configuration { get; }
 
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+		public Startup(IConfiguration configuration)
+		{
+			Configuration = configuration;
+		}
 
-        public void ConfigureServices(IServiceCollection services)
-        {
-            AutoMapperConfig.Init();
+		public void ConfigureServices(IServiceCollection services)
+		{
+			AutoMapperConfig.Init();
 
-            //services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
-            services.AddSingleton<NodeSynchronizer>();
-            services.AddSingleton<RPCNodeCaller>();
-            services.AddSingleton<LocationCaller>();
+			//services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
+			services.AddSingleton<NodeSynchronizer>();
+			services.AddSingleton<RPCNodeCaller>();
+			services.AddSingleton<LocationCaller>();
 
-            services.AddDbContext<NeoMonitorContext>(options =>
-            {
-                options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-            }, ServiceLifetime.Singleton).AddEntityFrameworkMySql();
+			services.AddDbContext<NeoMonitorContext>(options =>
+			{
+				options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+			}, ServiceLifetime.Singleton).AddEntityFrameworkMySql();
 
-            services.AddTransient<SeedData>();
-            services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, NotificationService>();
+			services.AddTransient<SeedData>();
+			services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, NotificationService>();
 
-            services.AddCors();
-            services.AddSignalR();
+			services.AddCors();
+			services.AddSignalR();
 
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
-        }
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+		}
 
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedData seeder)
-        {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            app.UseCors(builder =>
-            {
-                builder
-                    .WithOrigins("http://localhost:8111", "http://localhost:4200", "http://localhost:9876")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
-            });
-            app.UseStaticFiles();
-            app.UseSignalR(routes =>
-            {
-                routes.MapHub<NodeHub>("/hubs/node");
-            });
+		public void Configure(IApplicationBuilder app, IHostingEnvironment env, SeedData seeder)
+		{
+			if (env.IsDevelopment())
+			{
+				app.UseDeveloperExceptionPage();
+			}
+			app.UseCors(builder =>
+			{
+				builder
+					.WithOrigins("http://localhost:8111", "http://localhost:4200", "http://localhost:9876")
+					.AllowAnyMethod()
+					.AllowAnyHeader()
+					.AllowCredentials();
+			});
+			app.UseStaticFiles();
+			app.UseSignalR(routes =>
+			{
+				routes.MapHub<NodeHub>("/hubs/node");
+			});
 
-            seeder.Init();
+			seeder.Init();
 
-            app.UseMvc();
-        }
-    }
+			app.UseMvc();
+		}
+	}
 }
