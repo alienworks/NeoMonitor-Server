@@ -1,0 +1,93 @@
+﻿[
+  {
+    "url": "http://seed1.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "168.61.166.110"
+  },
+  {
+    "url": "http://seed2.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "104.43.234.181"
+  },
+  {
+    "url": "http://seed3.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "168.61.184.237"
+  },
+  {
+    "url": "http://seed4.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "168.61.186.167"
+  },
+  {
+    "url": "http://seed5.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "168.61.148.37"
+  },
+  {
+    "url": "http://seed6.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "47.254.44.88"
+  },
+  {
+    "url": "http://seed7.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "47.254.83.14"
+  },
+  {
+    "url": "http://seed8.ngd.network:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "47.254.43.76"
+  },
+  {
+    "url": "http://seed9.ngd.network:20332",
+    "location": "HongKong",
+    "locale": "hk",
+    "type": "RPC",
+    "ip": "47.91.225.117"
+  },
+  {
+    "url": "http://seed10.ngd.network:20332",
+    "location": "HongKong",
+    "locale": "hk",
+    "type": "RPC",
+    "ip": "47.52.159.228"
+  },
+  {
+    "url": "https://seed11.ngd.network:20331",
+    "location": "Singapore",
+    "locale": "sg",
+    "type": "RPC",
+    "ip": "13.76.173.63"
+  },
+  {
+    "url": "https://seed12.ngd.network:20331",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "168.61.16.30"
+  },
+  {
+    "url": "http://seed1.alienworks.io:20332",
+    "location": "India",
+    "locale": "in",
+    "type": "RPC",
+    "ip": "147.139.5.18"
+  }
+]

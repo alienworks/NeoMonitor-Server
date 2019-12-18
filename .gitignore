@@ -1,0 +1,16 @@
+/.vs
+/NodeMonitor/obj
+/NodeMonitor/bin
+/NeoMonitor.Data/bin
+/NeoMonitor.Data/obj
+/NeoMonitor.Data.Models/bin
+/NeoMonitor.Data.Models/obj
+/NodeMonitor.ViewModels/obj
+/NodeMonitor.ViewModels/bin
+/NeoMonitor.Infrastructure/obj
+/NeoMonitor.Infrastructure/bin
+/NeoState.Common/obj
+/NeoState.Common/bin
+/NodeMonitor/Properties/PublishProfiles/FolderProfile.pubxml.user
+/NeoMonitor.Data/Migrations
+/NeoMonitor.Data/script.txt

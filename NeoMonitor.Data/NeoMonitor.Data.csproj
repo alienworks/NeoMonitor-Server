@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="2.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NeoMonitor.Data.Models\NeoMonitor.Data.Models.csproj" />
+    <ProjectReference Include="..\NeoState.Common\NeoState.Common.csproj" />
+    <ProjectReference Include="..\NodeMonitor.ViewModels\NodeMonitor.ViewModels.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="seed-mainnet.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="seed-testnet.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>
