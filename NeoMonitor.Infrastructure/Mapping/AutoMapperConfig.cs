@@ -6,10 +6,7 @@ namespace NeoMonitor.Infrastructure.Mapping
 	{
 		public static void Init()
 		{
-			Mapper.Initialize(cfg =>
-			{
-				NodeConfig.InitMap(cfg);
-			});
+			Mapper.Initialize(NodeConfig.InitMap);
 		}
 	}
 }
