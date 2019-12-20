@@ -3,13 +3,15 @@ using System.Reflection;
 
 namespace NeoState.Common
 {
+	/// <summary>
+	/// Is this necessary?
+	/// </summary>
 	public static class ObjectExtensions
 	{
 		public static T GetFieldValue<T>(this object instance, string fieldName)
 		{
 			BindingFlags bindFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
-			var type = instance.GetType();
-			FieldInfo field = type.GetField(fieldName, bindFlags);
+			FieldInfo field = instance.GetType().GetField(fieldName, bindFlags);
 			return (T)field.GetValue(instance);
 		}
 

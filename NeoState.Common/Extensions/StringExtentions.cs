@@ -4,14 +4,18 @@ namespace NeoState.Common
 {
 	public static class StringExtensions
 	{
-		public static string ToMatchedIp(this string ipString)
+		private readonly static Regex _ipRegex = new Regex(@"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b", RegexOptions.Compiled);
+
+		public static bool TryMatchIpString(this string input, out string ip)
 		{
-			Match match = Regex.Match(ipString, @"\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b");
+			Match match = _ipRegex.Match(input);
 			if (match.Success)
 			{
-				return match.Value;
+				ip = match.Value;
+				return true;
 			}
-			return ipString;
+			ip = input;
+			return false;
 		}
 	}
 }
