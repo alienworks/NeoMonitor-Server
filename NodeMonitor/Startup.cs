@@ -31,10 +31,12 @@ namespace NodeMonitor
 			services.AddSingleton<RPCNodeCaller>();
 			services.AddSingleton<LocationCaller>();
 
-			services.AddDbContext<NeoMonitorContext>(options =>
-			{
-				options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-			}, ServiceLifetime.Singleton).AddEntityFrameworkMySql();
+			services
+				.AddDbContext<NeoMonitorContext>(options =>
+				{
+					options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+				}, ServiceLifetime.Singleton)
+				.AddEntityFrameworkMySql();
 
 			services.AddTransient<SeedData>();
 			services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, NotificationService>();

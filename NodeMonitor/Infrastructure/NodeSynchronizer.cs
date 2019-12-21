@@ -56,7 +56,7 @@ namespace NodeMonitor.Infrastructure
 				if (dbNode.Type == NodeAddressType.RPC)
 				{
 					var stopwatch = Stopwatch.StartNew();
-					var height = await _rPCNodeCaller.GetNodeHeight(dbNode);
+					var height = await _rPCNodeCaller.GetNodeHeightAsync(dbNode);
 					stopwatch.Stop();
 					var latency = stopwatch.ElapsedMilliseconds;
 
@@ -94,19 +94,19 @@ namespace NodeMonitor.Infrastructure
 					}
 					dbNode.LastUpdateTime = DateTime.Now;
 
-					var newVersion = await _rPCNodeCaller.GetNodeVersion(dbNode.Url);
+					var newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
 					if (!string.IsNullOrEmpty(newVersion))
 					{
 						dbNode.Version = newVersion;
 					}
 
-					var newPeers = await _rPCNodeCaller.GetNodePeers(dbNode);
+					var newPeers = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
 					if (newPeers != null)
 					{
 						dbNode.Peers = newPeers.Connected.Count();
 					}
 
-					var newMempool = await _rPCNodeCaller.GetNodeMemPool(dbNode);
+					var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
 					if (newMempool != null)
 					{
 						dbNode.MemoryPool = newMempool.Count;

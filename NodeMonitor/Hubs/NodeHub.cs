@@ -5,11 +5,11 @@ namespace NodeMonitor.Hubs
 {
 	public interface INodeHub
 	{
-		Task Send();
+		Task SendAsync();
 	}
 
 	public class NodeHub : Hub<INodeHub>
 	{
-		public async Task Send() => await Clients.All.Send();
+		public Task SendAsync() => Clients.All.SendAsync();
 	}
 }
