@@ -55,12 +55,11 @@ namespace NodeMonitor.Infrastructure
 				{
 					string rspText = await rsp.Content.ReadAsStringAsync();
 					var locModel = JsonTool.DeserializeObject<LocationModel>(rspText);
-					if (locModel is null)
+					if (locModel != null)
 					{
-						return false;
+						FillNodeLocationInfo(node, locModel);
+						return true;
 					}
-					FillNodeLocationInfo(node, locModel);
-					return true;
 				}
 			}
 			return false;

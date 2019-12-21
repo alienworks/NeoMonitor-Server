@@ -39,13 +39,13 @@ namespace NeoMonitor.Data.Seed
 			{
 				return;
 			}
-			_ctx.Nodes.AddRange(mainNodes.Select(node => new Node()
+			_ctx.Nodes.AddRange(mainNodes.Select(viewModel => new Node()
 			{
-				Url = node.Url,
-				IP = node.IP,
-				Type = Enum.Parse<NodeAddressType>(node.Type),
-				Locale = node.Locale,
-				Location = node.Location,
+				Url = viewModel.Url,
+				IP = viewModel.IP,
+				Type = Enum.Parse<NodeAddressType>(viewModel.Type),
+				Locale = viewModel.Locale,
+				Location = viewModel.Location,
 				Net = net
 			}));
 			_ctx.SaveChanges();
