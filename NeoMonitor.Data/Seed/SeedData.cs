@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using NeoMonitor.Data.Models;
 using NeoState.Common;
-using Newtonsoft.Json;
+using NeoState.Common.Tools;
 using NodeMonitor.ViewModels;
 
 namespace NeoMonitor.Data.Seed
@@ -34,7 +34,11 @@ namespace NeoMonitor.Data.Seed
 		private void SeedNodesByNetType(string net)
 		{
 			string seedjson = File.ReadAllText($@"seed-{net.ToLower()}.json");
-			var mainNodes = JsonConvert.DeserializeObject<NodeViewModel[]>(seedjson);
+			var mainNodes = JsonTool.DeserializeObject<NodeViewModel[]>(seedjson);
+			if (mainNodes is null || mainNodes.Length < 1)
+			{
+				return;
+			}
 			_ctx.Nodes.AddRange(mainNodes.Select(node => new Node()
 			{
 				Url = node.Url,
