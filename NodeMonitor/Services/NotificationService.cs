@@ -43,11 +43,21 @@ namespace NodeMonitor.Services
 		{
 			await _nodeSynchronizer.UpdateNodesInformationAsync();
 			var nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
-			var exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
-			nodes.ForEach(node =>
+			var nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
+			if (nodeExceptions.Count > 0)
 			{
-				node.ExceptionCount = exceptions.Count(ex => ex.Url == node.Url);
-			});
+				nodes.ForEach(node =>
+				{
+					node.ExceptionCount = nodeExceptions.Count(ex => ex.Url == node.Url);
+				});
+			}
+			else
+			{
+				foreach (var node in nodes)
+				{
+					node.ExceptionCount = 0;
+				}
+			}
 			await _nodeHub.Clients.All.SendAsync("Receive", nodes);
 		}
 	}

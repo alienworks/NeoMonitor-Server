@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
@@ -28,23 +27,26 @@ namespace NodeMonitor.Controllers
 			_configuration = configuration;
 			_nodeSynchronizer = nodeSynchronizer;
 
-			_nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
-			_nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
+			_nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
+			_nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
 		}
 
 		[HttpGet]
 		public IActionResult Get()
 		{
-			try
+			if (_nodeExceptions.Count > 0)
 			{
 				_nodes.ForEach(node =>
 				{
 					node.ExceptionCount = _nodeExceptions.Count(ex => ex.Url == node.Url);
 				});
 			}
-			catch (Exception ex)
+			else
 			{
-				return BadRequest(ex.Message);
+				foreach (var node in _nodes)
+				{
+					node.ExceptionCount = 0;
+				}
 			}
 			return Ok(_nodes);
 		}
