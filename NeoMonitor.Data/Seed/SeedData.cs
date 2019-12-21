@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using NeoMonitor.Data.Models;
 using NeoState.Common;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NodeMonitor.ViewModels;
 
 namespace NeoMonitor.Data.Seed
@@ -35,22 +33,18 @@ namespace NeoMonitor.Data.Seed
 
 		private void SeedNodesByNetType(string net)
 		{
-			var mainNodes = ((JArray)JsonConvert.DeserializeObject(File.ReadAllText($@"seed-{net.ToLower()}.json"))).ToObject<List<NodeViewModel>>();
-			foreach (var node in mainNodes)
+			string seedjson = File.ReadAllText($@"seed-{net.ToLower()}.json");
+			var mainNodes = JsonConvert.DeserializeObject<NodeViewModel[]>(seedjson);
+			_ctx.Nodes.AddRange(mainNodes.Select(node => new Node()
 			{
-				var newNode = new Node
-				{
-					Id = 0,
-					Url = node.Url,
-					IP = node.IP,
-					Type = Enum.Parse<NodeAddressType>(node.Type),
-					Locale = node.Locale,
-					Location = node.Location,
-					Net = net
-				};
-				_ctx.Nodes.Add(newNode);
-				_ctx.SaveChanges();
-			}
+				Url = node.Url,
+				IP = node.IP,
+				Type = Enum.Parse<NodeAddressType>(node.Type),
+				Locale = node.Locale,
+				Location = node.Location,
+				Net = net
+			}));
+			_ctx.SaveChanges();
 		}
 	}
 }
