@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
@@ -19,8 +18,8 @@ namespace NodeMonitor.Controllers
 		private readonly IConfiguration _configuration;
 		private readonly NodeSynchronizer _nodeSynchronizer;
 
-		private List<NodeViewModel> nodes;
-		private List<NodeException> exceptions;
+		private readonly List<NodeViewModel> _nodes;
+		private readonly List<NodeException> _nodeExceptions;
 
 		public NodesController(IConfiguration configuration,
 			IHubContext<NodeHub> nodeHub,
@@ -29,44 +28,54 @@ namespace NodeMonitor.Controllers
 			_configuration = configuration;
 			_nodeSynchronizer = nodeSynchronizer;
 
-			nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
-			exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
+			_nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
+			_nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
 		}
 
 		[HttpGet]
-		public async Task<IActionResult> Get()
+		public IActionResult Get()
 		{
 			try
 			{
-				nodes.ForEach(node =>
+				_nodes.ForEach(node =>
 				{
-					node.ExceptionCount = exceptions.Where(ex => ex.Url == node.Url).ToList().Count();
+					node.ExceptionCount = _nodeExceptions.Count(ex => ex.Url == node.Url);
 				});
-				return Ok(nodes);
 			}
 			catch (Exception ex)
 			{
 				return BadRequest(ex.Message);
 			}
+			return Ok(_nodes);
 		}
 
 		// GET api/nodes/5
 		[HttpGet("{id}")]
-		public async Task<JArray> Get(int id)
+		public ActionResult<JArray> Get(int id)
 		{
-			var result = new JArray();
-			string nodeUrl = nodes.Single(n => n.Id == id).Url;
-			exceptions.Where(ex => ex.Url == nodeUrl).ToList().ForEach(ex =>
+			if (_nodeExceptions.Count < 1)
 			{
-				var jNode = new JObject {
-						{ "id", ex.Id },
-						{ "nodeName", ex.Url },
-						{ "exceptionHeight", ex.ExceptionHeight },
-						{ "exceptionTime", ex.GenTime },
-						{ "intervals", ex.Intervals }
-				};
-				result.Add(jNode);
+				return new JArray();
+			}
+			var node = _nodes.Find(n => n.Id == id);
+			if (node is null)
+			{
+				return new JArray();
+			}
+			string nodeUrl = node.Url;
+			var nodeItems = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => new JObject
+			{
+				{ "id", ex.Id },
+				{ "nodeName", ex.Url },
+				{ "exceptionHeight", ex.ExceptionHeight },
+				{ "exceptionTime", ex.GenTime },
+				{ "intervals", ex.Intervals }
 			});
+			var result = new JArray();
+			foreach (var nodeItem in nodeItems)
+			{
+				result.Add(nodeItem);
+			}
 			return result;
 		}
 
