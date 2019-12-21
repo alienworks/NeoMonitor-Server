@@ -20,11 +20,5 @@
 		public string FlagUrl { get; set; }
 
 		public string Net { get; set; }
-
-		public override int GetHashCode()
-		{
-			var hash = Url.GetHashCode();
-			return hash;
-		}
 	}
 }
