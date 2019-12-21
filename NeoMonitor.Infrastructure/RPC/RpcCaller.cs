@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using NeoState.Common.RPC;
+using NeoState.Common.Tools;
 using Newtonsoft.Json;
 
 namespace NeoMonitor.Infrastructure.RPC
@@ -21,36 +22,31 @@ namespace NeoMonitor.Infrastructure.RPC
 		public static async Task<T> MakeRPCCallAsync<T>(string endpoint, string method = "getblockcount") where T : RPCBaseBody
 		{
 			var rpcRequest = new RPCRequestBody(method);
-			HttpResponseMessage response;
-			try
-			{
-				response = await SendRPCCallAsync(HttpMethod.Post, endpoint, rpcRequest);
-			}
-			catch
+			using var response = await SendRPCCallAsync(HttpMethod.Post, endpoint, rpcRequest);
+			if (!response.IsSuccessStatusCode)
 			{
 				return default;
 			}
-			if (response is null || !response.IsSuccessStatusCode)
-			{
-				return default;
-			}
-			string result = await response.Content.ReadAsStringAsync();
-			var serializedResult = JsonConvert.DeserializeObject<T>(result);
-			return serializedResult;
+			string rspText = await response.Content.ReadAsStringAsync();
+			var result = JsonTool.DeserializeObject<T>(rspText);
+			return result;
 		}
 
-		public static async Task<HttpResponseMessage> SendRPCCallAsync(HttpMethod httpMethod, string endpoint, object rpcData)
+		private static async Task<HttpResponseMessage> SendRPCCallAsync(HttpMethod httpMethod, string endpoint, object rpcData)
 		{
-			HttpResponseMessage response;
+			var data = JsonConvert.SerializeObject(rpcData, _jsonSerializerSettings);
+			var req = new HttpRequestMessage(httpMethod, endpoint)
+			{
+				Content = new StringContent(data, Encoding.UTF8, "application/json")
+			};
+			HttpResponseMessage response = null;
 			try
 			{
-				var req = new HttpRequestMessage(httpMethod, $"{endpoint}");
-				var data = JsonConvert.SerializeObject(rpcData, _jsonSerializerSettings);
-				req.Content = new StringContent(data, Encoding.Default, "application/json");
 				response = await _httpClient.SendAsync(req);
 			}
 			catch (Exception)
 			{
+				response?.Dispose();
 				response = new HttpResponseMessage(HttpStatusCode.BadRequest);
 			}
 			return response;

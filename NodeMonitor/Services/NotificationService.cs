@@ -16,39 +16,37 @@ namespace NodeMonitor.Services
 		private readonly NodeSynchronizer _nodeSynchronizer;
 		private readonly IHubContext<NodeHub> _nodeHub;
 
-		public NotificationService(NodeSynchronizer nodeSynchronizer,
-			IHubContext<NodeHub> nodeHub)
+		public NotificationService(NodeSynchronizer nodeSynchronizer, IHubContext<NodeHub> nodeHub)
 		{
 			_nodeSynchronizer = nodeSynchronizer;
 			_nodeHub = nodeHub;
 		}
 
-		protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+		protected override async Task ExecuteAsync(CancellationToken cancelToken)
 		{
-			while (!stoppingToken.IsCancellationRequested)
+			while (!cancelToken.IsCancellationRequested)
 			{
 				Console.WriteLine("Syncing... ...");
 				try
 				{
-					await UpdateBlockCount();
+					await UpdateBlockCountAsync();
 				}
-				catch (Exception e)
+				catch (Exception)
 				{
-					throw e;
+					throw;
 				}
-
-				await Task.Delay(5000, stoppingToken);
+				await Task.Delay(5000, cancelToken);
 			}
 		}
 
-		private async Task UpdateBlockCount()
+		private async Task UpdateBlockCountAsync()
 		{
-			await _nodeSynchronizer.UpdateNodesInformation();
-			var nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>().ToList();
-			var exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>().ToList();
+			await _nodeSynchronizer.UpdateNodesInformationAsync();
+			var nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
+			var exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
 			nodes.ForEach(node =>
 			{
-				node.ExceptionCount = exceptions.Where(ex => ex.Url == node.Url).ToList().Count();
+				node.ExceptionCount = exceptions.Count(ex => ex.Url == node.Url);
 			});
 			await _nodeHub.Clients.All.SendAsync("Receive", nodes);
 		}

@@ -29,8 +29,8 @@ namespace NodeMonitor.Controllers
 			_configuration = configuration;
 			_nodeSynchronizer = nodeSynchronizer;
 
-			nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>().ToList();
-			exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>().ToList();
+			nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>();
+			exceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
 		}
 
 		[HttpGet]
