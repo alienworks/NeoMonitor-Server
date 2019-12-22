@@ -5,8 +5,7 @@ namespace NeoMonitor.Data
 {
 	public class NeoMonitorContext : DbContext
 	{
-		public NeoMonitorContext(DbContextOptions<NeoMonitorContext> options)
-			: base(options)
+		public NeoMonitorContext(DbContextOptions<NeoMonitorContext> options) : base(options)
 		{
 		}
 
