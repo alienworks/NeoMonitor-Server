@@ -11,7 +11,7 @@ namespace NodeMonitor.Cache
 	{
 		private readonly NeoMonitorContext _ctx;
 
-		public List<NodeViewModel> NodeList { get; }
+		public HashSet<NodeViewModel> NodeList { get; }
 
 		public int ExceptionCount => ExceptionList.Count;
 
@@ -20,26 +20,29 @@ namespace NodeMonitor.Cache
 		public NodeCache(NeoMonitorContext ctx)
 		{
 			_ctx = ctx;
-			NodeList = new List<NodeViewModel>();
+			NodeList = new HashSet<NodeViewModel>();
 			ExceptionList = new List<NodeException>();
 		}
 
 		public List<NodeViewModel> GetRpcEnabledNodeList()
 		{
-			return NodeList.FindAll(n => "RPC".Equals(n.Type, StringComparison.OrdinalIgnoreCase));
+			return NodeList.Where(n => "RPC".Equals(n.Type, StringComparison.OrdinalIgnoreCase)).ToList();
 		}
 
-		public void UpdateNodes(IEnumerable<NodeViewModel> nodeViewModels)
+		public void AddNodes(IEnumerable<NodeViewModel> nodeViewModels)
 		{
-			NodeList.AddRange(nodeViewModels.Distinct(NodeViewModelEqualityComparer.Instance));
+			foreach (var nodeItem in nodeViewModels)
+			{
+				NodeList.Add(nodeItem);
+			}
 		}
 
-		public void AddExceptions(ICollection<NodeException> nodeException)
+		public void AddNodeExceptions(IEnumerable<NodeException> nodeException)
 		{
 			ExceptionList.AddRange(nodeException);
 		}
 
-		public void UpdateExceptions(ICollection<NodeException> nodeException)
+		public void UpdateNodeExceptions(IEnumerable<NodeException> nodeException)
 		{
 			ExceptionList.Clear();
 			ExceptionList.AddRange(nodeException);
