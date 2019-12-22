@@ -4,7 +4,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NeoMonitor.Data;
 using NeoMonitor.Data.Models;
@@ -15,30 +18,39 @@ namespace NodeMonitor.Infrastructure
 	public class NodeSynchronizer
 	{
 		private readonly IConfiguration _configuration;
-		private readonly NeoMonitorContext _ctx;
+		private readonly IServiceScopeFactory _scopeFactory;
+		//private readonly ILogger<NodeSynchronizer> _logger;
+
+		//private readonly NeoMonitorContext _ctx;
 		private readonly RPCNodeCaller _rPCNodeCaller;
-		private readonly LocationCaller _locationCaller;
+
+		//private readonly LocationCaller _locationCaller;
+
+		public NodeSynchronizer(IConfiguration configuration,
+		IServiceScopeFactory scopeFactory,
+		ILogger<NodeSynchronizer> logger,
+		//NeoMonitorContext ctx,
+		RPCNodeCaller rPCNodeCaller,
+		//LocationCaller locationCaller,
+		IOptions<NetSettings> netsettings)
+		{
+			_configuration = configuration;
+			_scopeFactory = scopeFactory;
+			//_logger = logger;
+
+			//_ctx = ctx;
+			_rPCNodeCaller = rPCNodeCaller;
+			//_locationCaller = locationCaller;
+			ExceptionFilter = _configuration.GetValue<int>("ExceptionFilter");
+
+			UpdateDbCache();
+		}
 
 		public int ExceptionFilter { get; }
 
 		public List<Node> CachedDbNodes { get; private set; }
 
 		public List<NodeException> CachedDbNodeExceptions { get; private set; }
-
-		public NodeSynchronizer(IConfiguration configuration,
-			NeoMonitorContext ctx,
-			RPCNodeCaller rPCNodeCaller,
-			LocationCaller locationCaller,
-			IOptions<NetSettings> netsettings)
-		{
-			_configuration = configuration;
-			_ctx = ctx;
-			_rPCNodeCaller = rPCNodeCaller;
-			_locationCaller = locationCaller;
-			ExceptionFilter = _configuration.GetValue<int>("ExceptionFilter");
-
-			UpdateDbCache();
-		}
 
 		public List<T> GetCachedNodesAs<T>()
 		{
@@ -54,82 +66,104 @@ namespace NodeMonitor.Infrastructure
 
 		public async Task UpdateNodesInformationAsync()
 		{
-			var dbNodes = _ctx.Nodes.Where(n => n.Type == NodeAddressType.RPC).ToList();
+			using var scope = _scopeFactory.CreateScope();
+			var dbCtx = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+			var dbNodes = dbCtx.Nodes.Where(n => n.Type == NodeAddressType.RPC).ToList();
+			if (dbNodes.Count < 1)
+			{
+				return;
+			}
 			foreach (var dbNode in dbNodes)
 			{
-				var stopwatch = Stopwatch.StartNew();
-				var height = await _rPCNodeCaller.GetNodeHeightAsync(dbNode);
-				stopwatch.Stop();
-				var latency = stopwatch.ElapsedMilliseconds;
-
-				if (height.HasValue)
-				{
-					dbNode.latency = latency;
-					if (!dbNode.Height.HasValue || height > dbNode.Height)
-					{
-						dbNode.Height = height;
-					}
-					else if (height == dbNode.Height)
-					{
-						var exception = _ctx.NodeExceptionList.SingleOrDefault(e => e.Url == dbNode.Url && e.ExceptionHeight == dbNode.Height);
-						if (exception == null)
-						{
-							var interval = (int)Math.Round((DateTime.Now - dbNode.LastUpdateTime).TotalSeconds, 0);
-							_ctx.NodeExceptionList.Add(new NodeException
-							{
-								Url = dbNode.Url,
-								ExceptionHeight = dbNode.Height.Value,
-								GenTime = DateTime.Now,
-								Intervals = interval
-							});
-							dbNode.ExceptionCount++;
-						}
-						else
-						{
-							exception.Intervals = (int)Math.Round((DateTime.Now - exception.GenTime).TotalSeconds, 0);
-						}
-					}
-				}
-				else
-				{
-					dbNode.latency = -1;
-				}
-				dbNode.LastUpdateTime = DateTime.Now;
-
-				var newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
-				if (!string.IsNullOrEmpty(newVersion))
-				{
-					dbNode.Version = newVersion;
-				}
-
-				var newPeers = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
-				if (newPeers != null)
-				{
-					dbNode.Peers = newPeers.Connected.Count();
-				}
-
-				var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
-				if (newMempool != null)
-				{
-					dbNode.MemoryPool = newMempool.Count;
-				}
-
-				await _locationCaller.UpdateNodeAsync(dbNode.Id);
-
-				_ctx.Nodes.Update(dbNode);
-				_ctx.SaveChanges();
+				await UpdateDbNodeAsync(dbCtx, dbNode);
 			}
 
 			UpdateDbCache();
 		}
 
+		private async Task UpdateDbNodeAsync(NeoMonitorContext scopedCtx, Node dbNode)
+		{
+			await UpdateNodeHeightAsync(scopedCtx, dbNode);
+
+			var newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
+			if (!string.IsNullOrEmpty(newVersion))
+			{
+				dbNode.Version = newVersion;
+			}
+
+			var peersRsp = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
+			if (peersRsp?.Connected != null)
+			{
+				dbNode.Peers = peersRsp.Connected.Count;
+			}
+
+			var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
+			if (newMempool != null)
+			{
+				dbNode.MemoryPool = newMempool.Count;
+			}
+
+			var locationCaller = new LocationCaller(scopedCtx);
+			await locationCaller.UpdateNodeAsync(dbNode.Id);
+
+			scopedCtx.Nodes.Update(dbNode);
+			scopedCtx.SaveChanges();
+		}
+
+		private async Task UpdateNodeHeightAsync(NeoMonitorContext scopedCtx, Node dbNode)
+		{
+			var sw = Stopwatch.StartNew();
+			int? height = await _rPCNodeCaller.GetNodeHeightAsync(dbNode);
+			sw.Stop();
+			long latency = sw.ElapsedMilliseconds;
+			if (height.HasValue)
+			{
+				dbNode.Latency = latency;
+				if (!dbNode.Height.HasValue || height > dbNode.Height)
+				{
+					dbNode.Height = height;
+				}
+				else if (height == dbNode.Height)
+				{
+					AddOrUpdateNodeException(scopedCtx, dbNode);
+				}
+			}
+			else
+			{
+				dbNode.Latency = -1;
+			}
+			dbNode.LastUpdateTime = DateTime.Now;
+		}
+
 		private void UpdateDbCache()
 		{
-			CachedDbNodes = _ctx.Nodes.Where(x => x.Type == NodeAddressType.RPC).ToList();
-
+			using var scope = _scopeFactory.CreateScope();
+			var context = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+			CachedDbNodes = context.Nodes.AsNoTracking().Where(x => x.Type == NodeAddressType.RPC).ToList();
 			DateTime end = DateTime.Now;
 			DateTime start = end.AddMonths(-3);
-			CachedDbNodeExceptions = _ctx.NodeExceptionList.Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Intervals > ExceptionFilter).ToList();
+			CachedDbNodeExceptions = context.NodeExceptionList.AsNoTracking().Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Intervals > ExceptionFilter).ToList();
+		}
+
+		private static void AddOrUpdateNodeException(NeoMonitorContext scopedCtx, Node dbNode)
+		{
+			var nodeEx = scopedCtx.NodeExceptionList.FirstOrDefault(e => e.Url == dbNode.Url && e.ExceptionHeight == dbNode.Height);
+			if (nodeEx is null)
+			{
+				int interval = (int)Math.Round((DateTime.Now - dbNode.LastUpdateTime).TotalSeconds, 0);
+				scopedCtx.NodeExceptionList.Add(new NodeException
+				{
+					Url = dbNode.Url,
+					ExceptionHeight = dbNode.Height.Value,
+					GenTime = DateTime.Now,
+					Intervals = interval
+				});
+				dbNode.ExceptionCount++;
+			}
+			else
+			{
+				nodeEx.Intervals = (int)Math.Round((DateTime.Now - nodeEx.GenTime).TotalSeconds, 0);
+			}
 		}
 	}
 }

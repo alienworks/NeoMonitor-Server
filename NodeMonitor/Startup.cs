@@ -27,16 +27,19 @@ namespace NodeMonitor
 			AutoMapperConfig.Init();
 
 			//services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
-			services.AddSingleton<NodeSynchronizer>();
-			services.AddSingleton<RPCNodeCaller>();
-			services.AddSingleton<LocationCaller>();
+
+			//services.AddHttpClient();
 
 			services
 				.AddDbContext<NeoMonitorContext>(options =>
 				{
 					options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-				}, ServiceLifetime.Singleton)
+				}, ServiceLifetime.Scoped)
 				.AddEntityFrameworkMySql();
+
+			services.AddSingleton<RPCNodeCaller>();
+			//services.AddSingleton<LocationCaller>();
+			services.AddSingleton<NodeSynchronizer>();
 
 			services.AddTransient<SeedData>();
 			services.AddSingleton<Microsoft.Extensions.Hosting.IHostedService, NotificationService>();
