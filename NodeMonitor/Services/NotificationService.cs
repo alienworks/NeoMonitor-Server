@@ -47,10 +47,10 @@ namespace NodeMonitor.Services
 			var nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>();
 			if (nodeExceptions.Count > 0)
 			{
-				nodes.ForEach(node =>
+				foreach (var node in nodes)
 				{
 					node.ExceptionCount = nodeExceptions.Count(ex => ex.Url == node.Url);
-				});
+				}
 			}
 			else
 			{
