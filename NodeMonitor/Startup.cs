@@ -28,7 +28,7 @@ namespace NodeMonitor
 
 			//services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
 
-			//services.AddHttpClient();
+			services.AddHttpClient<ILocateIpService, IpStackService>();
 
 			services
 				.AddDbContext<NeoMonitorContext>(options =>
@@ -38,7 +38,7 @@ namespace NodeMonitor
 				.AddEntityFrameworkMySql();
 
 			services.AddSingleton<RPCNodeCaller>();
-			//services.AddSingleton<LocationCaller>();
+			services.AddSingleton<LocationCaller>();
 			services.AddSingleton<NodeSynchronizer>();
 
 			services.AddTransient<SeedData>();

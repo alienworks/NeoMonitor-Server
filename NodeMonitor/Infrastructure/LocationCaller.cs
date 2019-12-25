@@ -1,93 +1,23 @@
-﻿using System;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using NeoMonitor.Data;
-using NeoMonitor.Data.Models;
+﻿using System.Threading.Tasks;
 using NeoState.Common;
-using NeoState.Common.Tools;
+using NodeMonitor.Services;
 
 namespace NodeMonitor.Infrastructure
 {
-	public class LocationCaller
+	public sealed class LocationCaller
 	{
 		//private readonly Dictionary<string, (string, string, double, double)> IPs = new Dictionary<string, (string, string, double, double)>();
 
-		private readonly NeoMonitorContext _ctx;
+		private readonly ILocateIpService _ipLocationService;
 
-		public LocationCaller(NeoMonitorContext ctx)
+		public LocationCaller(ILocateIpService ipLocationService)
 		{
-			_ctx = ctx;
+			_ipLocationService = ipLocationService;
 		}
 
-		public async Task UpdateAllNodeLocationsAsync()
+		public Task<LocationModel> CheckIpCallAsync(string ip)
 		{
-			var nodes = _ctx.Nodes.Where(node => node.Latitude == null || node.Longitude == null).ToList();
-			foreach (var node in nodes)
-			{
-				await UpdateNodeAsync(node);
-			}
-			//var tasks = new Task[nodes.Count];
-			//for (int i = 0; i < nodes.Count; i++)
-			//{
-			//	tasks[i] = UpdateNodeAsync(nodes[i]);
-			//}
-			//await Task.WhenAll(tasks);
-		}
-
-		public Task<bool> UpdateNodeAsync(int nodeId)
-		{
-			var node = _ctx.Nodes.FirstOrDefault(n => n.Id == nodeId);
-			if (node is null)
-			{
-				return Task.FromResult(false);
-			}
-			return UpdateNodeAsync(node);
-		}
-
-		private async Task<bool> UpdateNodeAsync(Node node)
-		{
-			if (!node.Latitude.HasValue || !node.Longitude.HasValue)
-			{
-				using var rsp = await CheckIpCallAsync(node.IP);
-				if (rsp.IsSuccessStatusCode)
-				{
-					string rspText = await rsp.Content.ReadAsStringAsync();
-					var locModel = JsonTool.DeserializeObject<LocationModel>(rspText);
-					if (locModel != null)
-					{
-						FillNodeLocationInfo(node, locModel);
-						return true;
-					}
-				}
-			}
-			return false;
-		}
-
-		private static async Task<HttpResponseMessage> CheckIpCallAsync(string ip)
-		{
-			using var httpClient = new HttpClient();///TODO: should use IHttpClientFactory here?
-			var req = new HttpRequestMessage(HttpMethod.Get, $"http://api.ipstack.com/{ip}?access_key=86e45b940f615f26bba14dde0a002bc3");///TODO: should add into config?
-			HttpResponseMessage response = null;
-			try
-			{
-				response = await httpClient.SendAsync(req);
-			}
-			catch (Exception)
-			{
-				response?.Dispose();
-				response = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			}
-			return response;
-		}
-
-		private static void FillNodeLocationInfo(Node node, LocationModel locModel)
-		{
-			node.FlagUrl = locModel.Flag;
-			node.Location = locModel.CountryName;
-			node.Latitude = locModel.Latitude;
-			node.Longitude = locModel.Longitude;
+			return _ipLocationService.GetLocationAsync(ip);
 		}
 	}
 }
