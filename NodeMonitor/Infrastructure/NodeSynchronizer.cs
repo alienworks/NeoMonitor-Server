@@ -7,8 +7,6 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using NeoMonitor.Data;
 using NeoMonitor.Data.Models;
 using NeoState.Common;
@@ -21,24 +19,21 @@ namespace NodeMonitor.Infrastructure
 		private readonly IServiceScopeFactory _scopeFactory;
 		//private readonly ILogger<NodeSynchronizer> _logger;
 
-		//private readonly NeoMonitorContext _ctx;
-		private readonly RPCNodeCaller _rPCNodeCaller;
-
 		//private readonly LocationCaller _locationCaller;
+		private readonly RPCNodeCaller _rPCNodeCaller;
 
 		public NodeSynchronizer(IConfiguration configuration,
 		IServiceScopeFactory scopeFactory,
-		ILogger<NodeSynchronizer> logger,
+		//IOptions<NetSettings> netsettings,
+		//ILogger<NodeSynchronizer> logger,
 		//NeoMonitorContext ctx,
-		RPCNodeCaller rPCNodeCaller,
+		RPCNodeCaller rPCNodeCaller
 		//LocationCaller locationCaller,
-		IOptions<NetSettings> netsettings)
+		)
 		{
 			_configuration = configuration;
 			_scopeFactory = scopeFactory;
 			//_logger = logger;
-
-			//_ctx = ctx;
 			_rPCNodeCaller = rPCNodeCaller;
 			//_locationCaller = locationCaller;
 			ExceptionFilter = _configuration.GetValue<int>("ExceptionFilter");
