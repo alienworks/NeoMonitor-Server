@@ -50,6 +50,8 @@ namespace NodeMonitor.Infrastructure
 
 		public int ExceptionFilter { get; }
 
+		public int ParallelDegree { get; } = 100;
+
 		public List<Node> CachedDbNodes { get; private set; }
 
 		public List<NodeException> CachedDbNodeExceptions { get; private set; }
@@ -75,7 +77,7 @@ namespace NodeMonitor.Infrastructure
 			{
 				return;
 			}
-			var semaphore = new SemaphoreSlim(50, 50);
+			using var semaphore = new SemaphoreSlim(ParallelDegree, ParallelDegree);
 			var tasks = dbNodes.Select(n => CreateActions_UpdateDbNodeAsync(n, semaphore)).ToArray();
 			//foreach (var dbNode in dbNodes)
 			//{
@@ -89,7 +91,27 @@ namespace NodeMonitor.Infrastructure
 
 		private void ExecuteActions(NeoMonitorContext ctx)
 		{
-			///TODO: To be finished
+			foreach (var item in _nodeActionDict)
+			{
+				var node = ctx.Nodes.FirstOrDefault(p => p.Id == item.Key);
+				if (node != null)
+				{
+					item.Value.Invoke(node);
+				}
+			}
+			foreach (var item in _nodeExceptionActionDict)
+			{
+				var node = ctx.NodeExceptionList.FirstOrDefault(p => p.Id == item.Key);
+				if (node != null)
+				{
+					item.Value.Invoke(node);
+				}
+			}
+			foreach (var item in _contextActions)
+			{
+				item.Invoke(ctx);
+			}
+			ctx.SaveChanges();
 			ClearActionsCache();
 		}
 
