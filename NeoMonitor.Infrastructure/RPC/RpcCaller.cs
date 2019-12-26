@@ -1,6 +1,4 @@
-﻿using System;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using NeoState.Common.RPC;
@@ -19,10 +17,20 @@ namespace NeoMonitor.Infrastructure.RPC
 			DefaultValueHandling = DefaultValueHandling.Ignore
 		};
 
-		public static async Task<T> MakeRPCCallAsync<T>(string endpoint, string method = "getblockcount") where T : RPCBaseBody
+		public static async Task<T> MakeRPCCallAsync<T>(string url, string method = "getblockcount") where T : RPCBaseBody
 		{
 			var rpcRequest = new RPCRequestBody(method);
-			using var response = await SendRPCCallAsync(HttpMethod.Post, endpoint, rpcRequest);
+			string rpcJson = JsonConvert.SerializeObject(rpcRequest, _jsonSerializerSettings);
+			HttpResponseMessage response = null;
+			try
+			{
+				response = await _httpClient.PostAsync(url, new StringContent(rpcJson, Encoding.UTF8, "application/json"));
+			}
+			catch
+			{
+				response?.Dispose();
+				return default;
+			}
 			if (!response.IsSuccessStatusCode)
 			{
 				return default;
@@ -30,26 +38,6 @@ namespace NeoMonitor.Infrastructure.RPC
 			string rspText = await response.Content.ReadAsStringAsync();
 			var result = JsonTool.DeserializeObject<T>(rspText);
 			return result;
-		}
-
-		private static async Task<HttpResponseMessage> SendRPCCallAsync(HttpMethod httpMethod, string endpoint, object rpcData)
-		{
-			var data = JsonConvert.SerializeObject(rpcData, _jsonSerializerSettings);
-			var req = new HttpRequestMessage(httpMethod, endpoint)
-			{
-				Content = new StringContent(data, Encoding.UTF8, "application/json")
-			};
-			HttpResponseMessage response = null;
-			try
-			{
-				response = await _httpClient.SendAsync(req);
-			}
-			catch (Exception)
-			{
-				response?.Dispose();
-				response = new HttpResponseMessage(HttpStatusCode.BadRequest);
-			}
-			return response;
 		}
 	}
 }
