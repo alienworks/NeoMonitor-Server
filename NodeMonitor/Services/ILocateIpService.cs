@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
-using NeoState.Common;
+using NeoState.Common.Location;
 
 namespace NodeMonitor.Services
 {
 	public interface ILocateIpService
 	{
-		Task<LocationModel> GetLocationAsync(string ip);
+		Task<IpCheckModel> GetLocationAsync(string ip);
 	}
 }

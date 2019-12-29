@@ -89,5 +89,54 @@
     "locale": "in",
     "type": "RPC",
     "ip": "147.139.5.18"
+  },
+  {
+    "url": "http://seed2.alienworks.io:20332",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "47.252.82.32"
+  },
+  {
+    "url": "http://seed3.alienworks.io:20332",
+    "location": "China",
+    "locale": "cn",
+    "type": "RPC",
+    "ip": "139.196.213.118"
+  },
+  {
+    "url": "https://test1.cityofzion.io:443",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "13.58.169.218"
+  },
+  {
+    "url": "https://test2.cityofzion.io:443",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "13.58.33.157"
+  },
+  {
+    "url": "https://test3.cityofzion.io:443",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "18.222.161.128"
+  },
+  {
+    "url": "https://test4.cityofzion.io:443",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "18.191.171.240"
+  },
+  {
+    "url": "https://test5.cityofzion.io:443",
+    "location": "United States",
+    "locale": "us",
+    "type": "RPC",
+    "ip": "18.222.168.189"
   }
 ]

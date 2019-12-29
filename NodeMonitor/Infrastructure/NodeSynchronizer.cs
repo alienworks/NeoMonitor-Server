@@ -68,6 +68,11 @@ namespace NodeMonitor.Infrastructure
 			return result;
 		}
 
+		/// <summary>
+		/// Update node info
+		/// </summary>
+		/// <returns></returns>
+		/// <remarks>To save memory and be GC-friendly, it use the local collections for Action<T> cache. So don't use it in multi-thread environment, though it's thread-safe.</remarks>
 		public async Task UpdateNodesInformationAsync()
 		{
 			using var scope = _scopeFactory.CreateScope();
@@ -79,10 +84,6 @@ namespace NodeMonitor.Infrastructure
 			}
 			using var semaphore = new SemaphoreSlim(ParallelDegree, ParallelDegree);
 			var tasks = dbNodes.Select(n => CreateActions_UpdateDbNodeAsync(n, semaphore)).ToArray();
-			//foreach (var dbNode in dbNodes)
-			//{
-			//	await UpdateDbNodeAsync(dbCtx, dbNode);
-			//}
 			await Task.WhenAll(tasks);
 
 			ExecuteActions(dbCtx);
@@ -128,19 +129,21 @@ namespace NodeMonitor.Infrastructure
 			var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
 			if (!dbNode.Latitude.HasValue || !dbNode.Longitude.HasValue)
 			{
-				var locModel = await _locationCaller.CheckIpCallAsync(dbNode.IP);
+				var ipCheckModel = await _locationCaller.CheckIpCallAsync(dbNode.IP);
 				semaphore.Release();
-				if (locModel != null)
+				if (ipCheckModel != null)
 				{
-					string flag = locModel.Flag;
-					string countryName = locModel.CountryName;
-					double lat = locModel.Latitude, lng = locModel.Longitude;
+					string flag = ipCheckModel.Location.Flag;
+					string countryName = ipCheckModel.CountryName;
+					double lat = ipCheckModel.Latitude, lng = ipCheckModel.Longitude;
+					string locale = ipCheckModel.Location.Languages.FirstOrDefault()?.Code;
 					AddOrUpdateAction(_nodeActionDict, nodeId, n =>
 					{
 						n.FlagUrl = flag;
 						n.Location = countryName;
 						n.Latitude = lat;
 						n.Longitude = lng;
+						n.Locale = locale;
 					});
 				}
 			}
@@ -241,93 +244,5 @@ namespace NodeMonitor.Infrastructure
 			_nodeExceptionActionDict.Clear();
 			_contextActions.Clear();
 		}
-
-		#region Backup
-
-		private async Task UpdateDbNodeAsync(NeoMonitorContext scopedCtx, Node dbNode)
-		{
-			await UpdateNodeHeightAsync(scopedCtx, dbNode);
-
-			var newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
-			if (!string.IsNullOrEmpty(newVersion))
-			{
-				dbNode.Version = newVersion;
-			}
-
-			var peersRsp = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
-			if (peersRsp?.Connected != null)
-			{
-				dbNode.Peers = peersRsp.Connected.Count;
-			}
-
-			var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
-			if (newMempool != null)
-			{
-				dbNode.MemoryPool = newMempool.Count;
-			}
-
-			if (!dbNode.Latitude.HasValue || !dbNode.Longitude.HasValue)
-			{
-				var locModel = await _locationCaller.CheckIpCallAsync(dbNode.IP);
-				if (locModel != null)
-				{
-					dbNode.FlagUrl = locModel.Flag;
-					dbNode.Location = locModel.CountryName;
-					dbNode.Latitude = locModel.Latitude;
-					dbNode.Longitude = locModel.Longitude;
-				}
-			}
-
-			scopedCtx.Nodes.Update(dbNode);
-			scopedCtx.SaveChanges();
-		}
-
-		private async Task UpdateNodeHeightAsync(NeoMonitorContext scopedCtx, Node dbNode)
-		{
-			var sw = Stopwatch.StartNew();
-			int? height = await _rPCNodeCaller.GetNodeHeightAsync(dbNode);
-			sw.Stop();
-			long latency = sw.ElapsedMilliseconds;
-			if (height.HasValue)
-			{
-				dbNode.Latency = latency;
-				if (!dbNode.Height.HasValue || height > dbNode.Height)
-				{
-					dbNode.Height = height;
-				}
-				else if (height == dbNode.Height)
-				{
-					AddOrUpdateNodeException(scopedCtx, dbNode);
-				}
-			}
-			else
-			{
-				dbNode.Latency = -1;
-			}
-			dbNode.LastUpdateTime = DateTime.Now;
-		}
-
-		private static void AddOrUpdateNodeException(NeoMonitorContext scopedCtx, Node dbNode)
-		{
-			var nodeEx = scopedCtx.NodeExceptionList.FirstOrDefault(e => e.Url == dbNode.Url && e.ExceptionHeight == dbNode.Height);
-			if (nodeEx is null)
-			{
-				int interval = (int)Math.Round((DateTime.Now - dbNode.LastUpdateTime).TotalSeconds, 0);
-				scopedCtx.NodeExceptionList.Add(new NodeException
-				{
-					Url = dbNode.Url,
-					ExceptionHeight = dbNode.Height.Value,
-					GenTime = DateTime.Now,
-					Intervals = interval
-				});
-				dbNode.ExceptionCount++;
-			}
-			else
-			{
-				nodeEx.Intervals = (int)Math.Round((DateTime.Now - nodeEx.GenTime).TotalSeconds, 0);
-			}
-		}
-
-		#endregion Backup
 	}
 }

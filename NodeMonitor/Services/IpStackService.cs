@@ -2,7 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using NeoState.Common;
+using NeoState.Common.Location;
 
 namespace NodeMonitor.Services
 {
@@ -29,7 +29,7 @@ namespace NodeMonitor.Services
 			Client = client;
 		}
 
-		public async Task<LocationModel> GetLocationAsync(string ip)
+		public async Task<IpCheckModel> GetLocationAsync(string ip)
 		{
 			StringBuilder sb = new StringBuilder(ip.Length + AccessKey.Length + 13);
 			sb.Append('/');
@@ -51,7 +51,7 @@ namespace NodeMonitor.Services
 			{
 				return null;
 			}
-			var result = await response.Content.ReadAsAsync<LocationModel>();
+			var result = await response.Content.ReadAsAsync<IpCheckModel>();
 			return result;
 		}
 	}

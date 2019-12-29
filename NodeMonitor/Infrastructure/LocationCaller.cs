@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using NeoState.Common;
+using NeoState.Common.Location;
 using NodeMonitor.Services;
 
 namespace NodeMonitor.Infrastructure
@@ -15,7 +15,7 @@ namespace NodeMonitor.Infrastructure
 			_ipLocationService = ipLocationService;
 		}
 
-		public Task<LocationModel> CheckIpCallAsync(string ip)
+		public Task<IpCheckModel> CheckIpCallAsync(string ip)
 		{
 			return _ipLocationService.GetLocationAsync(ip);
 		}
