@@ -31,11 +31,11 @@ namespace NodeMonitor.Services
 			Stopwatch sw = new Stopwatch();
 			while (!cancelToken.IsCancellationRequested)
 			{
-				_logger.LogWarning("[{0}] Syncing... ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+				_logger.LogDebug("[{0}] Syncing... ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
 				sw.Restart();
 				await UpdateBlockCountAsync();
 				sw.Stop();
-				_logger.LogWarning("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
+				_logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
 				await Task.Delay(5000, cancelToken);
 			}
 		}

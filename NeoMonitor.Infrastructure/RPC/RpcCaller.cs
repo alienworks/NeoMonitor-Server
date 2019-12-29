@@ -9,7 +9,7 @@ namespace NeoMonitor.Infrastructure.RPC
 {
 	public class RpcCaller
 	{
-		private static readonly HttpClient _httpClient = new HttpClient();
+		private static readonly HttpClient _httpClient = new HttpClient(new SocketsHttpHandler());
 
 		private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
 		{

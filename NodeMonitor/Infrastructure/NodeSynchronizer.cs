@@ -50,7 +50,7 @@ namespace NodeMonitor.Infrastructure
 
 		public int ExceptionFilter { get; }
 
-		public int ParallelDegree { get; } = 100;
+		public int ParallelDegree { get; } = 50;
 
 		public List<Node> CachedDbNodes { get; private set; }
 
@@ -121,54 +121,27 @@ namespace NodeMonitor.Infrastructure
 			semaphore.Wait();
 			using var scope = _scopeFactory.CreateScope();
 			var scopedCtx = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
-			await CreateActions_UpdateNodeHeightAsync(scopedCtx, dbNode);
 
-			int nodeId = dbNode.Id;
-			var newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
-			var peersRsp = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
-			var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
+			Task heightTask = GetNodeHeightAsync(scopedCtx, dbNode);
+			Task versionTask = GetNodeVersionAsync(dbNode);
+			Task peersTask = GetNodePeersAsync(dbNode);
+			Task mempoolTask = GetNodeMemPoolAsync(dbNode);
+			await Task.WhenAll(heightTask, versionTask, peersTask, mempoolTask);
+
+			//await GetNodeHeightAsync(scopedCtx, dbNode);
+			//await GetNodeVersionAsync(dbNode);
+			//await GetNodePeersAsync(dbNode);
+			//await GetNodeMemPoolAsync(dbNode);
+
 			if (!dbNode.Latitude.HasValue || !dbNode.Longitude.HasValue)
 			{
-				var ipCheckModel = await _locationCaller.CheckIpCallAsync(dbNode.IP);
-				semaphore.Release();
-				if (ipCheckModel != null)
-				{
-					string flag = ipCheckModel.Location.Flag;
-					string countryName = ipCheckModel.CountryName;
-					double lat = ipCheckModel.Latitude, lng = ipCheckModel.Longitude;
-					string locale = ipCheckModel.Location.Languages.FirstOrDefault()?.Code;
-					AddOrUpdateAction(_nodeActionDict, nodeId, n =>
-					{
-						n.FlagUrl = flag;
-						n.Location = countryName;
-						n.Latitude = lat;
-						n.Longitude = lng;
-						n.Locale = locale;
-					});
-				}
-			}
-			else
-			{
-				semaphore.Release();
+				await GetNodeLocationAsync(dbNode);
 			}
 
-			if (!string.IsNullOrEmpty(newVersion))
-			{
-				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.Version = newVersion; });
-			}
-			if (peersRsp?.Connected != null)
-			{
-				int connectedCount = peersRsp.Connected.Count;
-				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.Peers = connectedCount; });
-			}
-			if (newMempool != null)
-			{
-				int memPoolSize = newMempool.Count;
-				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.MemoryPool = memPoolSize; });
-			}
+			semaphore.Release();
 		}
 
-		private async Task CreateActions_UpdateNodeHeightAsync(NeoMonitorContext scopedCtx, Node dbNode)
+		private async Task GetNodeHeightAsync(NeoMonitorContext scopedCtx, Node dbNode)
 		{
 			var sw = Stopwatch.StartNew();
 			int? height = await _rPCNodeCaller.GetNodeHeightAsync(dbNode);
@@ -183,7 +156,7 @@ namespace NodeMonitor.Infrastructure
 				}
 				else if (height == dbNode.Height)
 				{
-					CreateActions_AddOrUpdateNodeException(scopedCtx, dbNode, latency);
+					AddOrUpdateNodeException(scopedCtx, dbNode, latency);
 				}
 			}
 			else
@@ -192,7 +165,60 @@ namespace NodeMonitor.Infrastructure
 			}
 		}
 
-		private void CreateActions_AddOrUpdateNodeException(NeoMonitorContext scopedCtx, Node dbNode, long latency)
+		private async Task GetNodeLocationAsync(Node dbNode)
+		{
+			var ipCheckModel = await _locationCaller.CheckIpCallAsync(dbNode.IP);
+			if (ipCheckModel != null)
+			{
+				int nodeId = dbNode.Id;
+				double lat = ipCheckModel.Latitude, lng = ipCheckModel.Longitude;
+				string flag = ipCheckModel.Location.Flag;
+				string countryName = ipCheckModel.CountryName;
+				string locale = ipCheckModel.Location.Languages.FirstOrDefault()?.Code;
+				AddOrUpdateAction(_nodeActionDict, nodeId, n =>
+				{
+					n.FlagUrl = flag;
+					n.Location = countryName;
+					n.Latitude = lat;
+					n.Longitude = lng;
+					n.Locale = locale;
+				});
+			}
+		}
+
+		private async Task GetNodeVersionAsync(Node dbNode)
+		{
+			string newVersion = await _rPCNodeCaller.GetNodeVersionAsync(dbNode);
+			if (!string.IsNullOrEmpty(newVersion))
+			{
+				int nodeId = dbNode.Id;
+				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.Version = newVersion; });
+			}
+		}
+
+		private async Task GetNodePeersAsync(Node dbNode)
+		{
+			var peersRsp = await _rPCNodeCaller.GetNodePeersAsync(dbNode);
+			if (peersRsp?.Connected != null)
+			{
+				int nodeId = dbNode.Id;
+				int connectedCount = peersRsp.Connected.Count;
+				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.Peers = connectedCount; });
+			}
+		}
+
+		private async Task GetNodeMemPoolAsync(Node dbNode)
+		{
+			var newMempool = await _rPCNodeCaller.GetNodeMemPoolAsync(dbNode);
+			if (newMempool != null)
+			{
+				int nodeId = dbNode.Id;
+				int memPoolSize = newMempool.Count;
+				AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.MemoryPool = memPoolSize; });
+			}
+		}
+
+		private void AddOrUpdateNodeException(NeoMonitorContext scopedCtx, Node dbNode, long latency)
 		{
 			int nodeId = dbNode.Id;
 			var nodeEx = scopedCtx.NodeExceptionList.AsNoTracking().FirstOrDefault(e => e.Url == dbNode.Url && e.ExceptionHeight == dbNode.Height);
@@ -223,11 +249,6 @@ namespace NodeMonitor.Infrastructure
 			}
 		}
 
-		private static void AddOrUpdateAction<T>(ConcurrentDictionary<int, Action<T>> dict, int id, Action<T> act) where T : class
-		{
-			dict.AddOrUpdate(id, act, (k, v) => n => { v.Invoke(n); act.Invoke(n); });
-		}
-
 		private void UpdateDbCache()
 		{
 			using var scope = _scopeFactory.CreateScope();
@@ -243,6 +264,11 @@ namespace NodeMonitor.Infrastructure
 			_nodeActionDict.Clear();
 			_nodeExceptionActionDict.Clear();
 			_contextActions.Clear();
+		}
+
+		private static void AddOrUpdateAction<T>(ConcurrentDictionary<int, Action<T>> dict, int id, Action<T> act) where T : class
+		{
+			dict.AddOrUpdate(id, act, (k, v) => n => { v.Invoke(n); act.Invoke(n); });
 		}
 	}
 }
