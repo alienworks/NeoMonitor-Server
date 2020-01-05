@@ -1,17 +1,17 @@
 ﻿using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace NeoState.Common.Location
 {
     public class LocationModel
     {
-        [JsonProperty(PropertyName = "country_flag")]
+        [JsonPropertyName("country_flag")]
         public string Flag { get; set; }
 
-        [JsonProperty(PropertyName = "capital")]
+        [JsonPropertyName("capital")]
         public string Capital { get; set; }
 
-        [JsonProperty(PropertyName = "languages")]
+        [JsonPropertyName("languages")]
         public List<LanguageModel> Languages { get; set; }
     }
 }

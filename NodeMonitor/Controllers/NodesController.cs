@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.Extensions.Configuration;
 using NeoMonitor.Data.Models;
-using Newtonsoft.Json.Linq;
 using NodeMonitor.Controllers.Base;
-using NodeMonitor.Hubs;
 using NodeMonitor.Infrastructure;
 using NodeMonitor.ViewModels;
 
@@ -14,19 +12,23 @@ namespace NodeMonitor.Controllers
 {
     public class NodesController : BaseApiController
     {
-        private readonly IConfiguration _configuration;
-        private readonly NodeSynchronizer _nodeSynchronizer;
+        //private readonly IConfiguration _configuration;
+        private readonly IMapper _mapper;
 
+        private readonly NodeSynchronizer _nodeSynchronizer;
         private readonly List<NodeViewModel> _nodes;
         private readonly List<NodeException> _nodeExceptions;
 
-        public NodesController(IConfiguration configuration,
-            IHubContext<NodeHub> nodeHub,
-            NodeSynchronizer nodeSynchronizer)
+        public NodesController(IMapper mapper,
+            NodeSynchronizer nodeSynchronizer
+            //IConfiguration configuration,
+            //IHubContext<NodeHub> nodeHub
+            )
         {
-            _configuration = configuration;
-            _nodeSynchronizer = nodeSynchronizer;
+            //_configuration = configuration;
+            _mapper = mapper;
 
+            _nodeSynchronizer = nodeSynchronizer;
             _nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
             _nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
         }
@@ -53,31 +55,20 @@ namespace NodeMonitor.Controllers
 
         // GET api/nodes/5
         [HttpGet("{id}")]
-        public ActionResult<JArray> Get(int id)
+        public ActionResult<string> Get(int id)
         {
             if (_nodeExceptions.Count < 1)
             {
-                return new JArray();
+                return "[]";
             }
             var node = _nodes.Find(n => n.Id == id);
             if (node is null)
             {
-                return new JArray();
+                return "[]";
             }
             string nodeUrl = node.Url;
-            var nodeItems = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => new JObject
-            {
-                { "id", ex.Id },
-                { "nodeName", ex.Url },
-                { "exceptionHeight", ex.ExceptionHeight },
-                { "exceptionTime", ex.GenTime },
-                { "intervals", ex.Intervals }
-            });
-            var result = new JArray();
-            foreach (var nodeItem in nodeItems)
-            {
-                result.Add(nodeItem);
-            }
+            var nodeExps = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => _mapper.Map<NodeExceptionViewModel>(ex));
+            string result = JsonSerializer.Serialize(nodeExps);
             return result;
         }
 

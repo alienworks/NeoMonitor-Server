@@ -25,9 +25,9 @@ namespace NodeMonitor
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddAutoMapper(typeof(AutoMapperConfig));
-
             //services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
+
+            services.AddAutoMapper(AutoMapperConfig.InitMap, typeof(AutoMapperConfig));
 
             services.AddHttpClient<ILocateIpService, IpStackService>();
 
@@ -38,17 +38,17 @@ namespace NodeMonitor
                 }, ServiceLifetime.Scoped)
                 .AddEntityFrameworkMySql();
 
+            services.AddTransient<SeedData>();
             services.AddSingleton<RPCNodeCaller>();
             services.AddSingleton<LocationCaller>();
             services.AddSingleton<NodeSynchronizer>();
 
-            services.AddTransient<SeedData>();
             services.AddSingleton<IHostedService, NotificationService>();
 
             services.AddCors();
             services.AddSignalR();
 
-            services.AddMvc();
+            services.AddMvc(p => p.EnableEndpointRouting = false);
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment env, SeedData seeder)
@@ -66,12 +66,15 @@ namespace NodeMonitor
                     .AllowCredentials();
             });
             appBuilder.UseStaticFiles();
-            appBuilder.UseEndpoints(routes =>
-            {
-                routes.MapHub<NodeHub>("/hubs/node");
-            });
+            appBuilder.UseRouting()
+                .UseEndpoints(routeBuilder =>
+                {
+                    routeBuilder.MapHub<NodeHub>("/hubs/node");
+                });
 
-            seeder.Init();
+            seeder.Initialize();
+
+            appBuilder.UseMvc();
         }
     }
 }

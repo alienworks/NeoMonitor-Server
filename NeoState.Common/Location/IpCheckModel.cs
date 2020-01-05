@@ -1,25 +1,25 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NeoState.Common.Location
 {
     public class IpCheckModel
     {
-        [JsonProperty(PropertyName = "ip")]
+        [JsonPropertyName("ip")]
         public string Ip { get; set; }
 
-        [JsonProperty(PropertyName = "city")]
+        [JsonPropertyName("city")]
         public string City { get; set; }
 
-        [JsonProperty(PropertyName = "country_name")]
+        [JsonPropertyName("country_name")]
         public string CountryName { get; set; }
 
-        [JsonProperty(PropertyName = "latitude")]
+        [JsonPropertyName("latitude")]
         public double Latitude { get; set; }
 
-        [JsonProperty(PropertyName = "longitude")]
+        [JsonPropertyName("longitude")]
         public double Longitude { get; set; }
 
-        [JsonProperty(PropertyName = "location")]
+        [JsonPropertyName("location")]
         public LocationModel Location { get; set; }
     }
 }

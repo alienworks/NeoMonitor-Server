@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NeoState.Common.RPC
 {
     public class RPCPeer
     {
-        [JsonProperty(PropertyName = "address")]
+        [JsonPropertyName("address")]
         public string Address { get; set; }
 
-        [JsonProperty(PropertyName = "port")]
+        [JsonPropertyName("port")]
         public uint Port { get; set; }
     }
 }

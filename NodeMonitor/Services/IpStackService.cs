@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using NeoState.Common.Location;
 
@@ -51,7 +52,8 @@ namespace NodeMonitor.Services
             {
                 return null;
             }
-            var result = await response.Content.ReadAsAsync<IpCheckModel>();
+            byte[] bytes = await response.Content.ReadAsByteArrayAsync();
+            var result = JsonSerializer.Deserialize<IpCheckModel>(bytes);
             return result;
         }
     }

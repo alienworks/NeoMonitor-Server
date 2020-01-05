@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NeoState.Common.RPC
 {
     public class RPCResponseBody<T> : RPCBaseBody
     {
-        [JsonProperty(PropertyName = "result")]
+        [JsonPropertyName("result")]
         public T Result { get; set; }
     }
 }

@@ -1,9 +1,9 @@
-﻿using System.Net.Http;
+﻿using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using NeoState.Common.RPC;
-using NeoState.Common.Tools;
-using Newtonsoft.Json;
 
 namespace NeoMonitor.Infrastructure.RPC
 {
@@ -11,16 +11,17 @@ namespace NeoMonitor.Infrastructure.RPC
     {
         private static readonly HttpClient _httpClient = new HttpClient(new SocketsHttpHandler());
 
-        private static readonly JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings()
+        private static readonly JsonSerializerOptions _jsonSerializerOptions = new JsonSerializerOptions()
         {
-            NullValueHandling = NullValueHandling.Ignore,
-            DefaultValueHandling = DefaultValueHandling.Ignore
+            AllowTrailingCommas = true,
+            IgnoreNullValues = true,
+            PropertyNameCaseInsensitive = true
         };
 
         public static async Task<T> MakeRPCCallAsync<T>(string url, string method = "getblockcount") where T : RPCBaseBody
         {
             var rpcRequest = new RPCRequestBody(method);
-            string rpcJson = JsonConvert.SerializeObject(rpcRequest, _jsonSerializerSettings);
+            string rpcJson = JsonSerializer.Serialize(rpcRequest, _jsonSerializerOptions);
             HttpResponseMessage response = null;
             try
             {
@@ -35,8 +36,24 @@ namespace NeoMonitor.Infrastructure.RPC
             {
                 return default;
             }
-            string rspText = await response.Content.ReadAsStringAsync();
-            var result = JsonTool.DeserializeObject<T>(rspText);
+            byte[] rspBytes = await response.Content.ReadAsByteArrayAsync();
+            if (rspBytes is null || rspBytes.Length < 1)
+            {
+                return default;
+            }
+            T result;
+            try
+            {
+                result = JsonSerializer.Deserialize<T>(rspBytes, _jsonSerializerOptions);
+            }
+            catch
+            {
+#if DEBUG
+                string rspText = Encoding.UTF8.GetString(rspBytes);
+                Debug.WriteLine("JsonParseError: at[{0}]->{1}", nameof(RpcCaller), rspText);
+#endif
+                return default;
+            }
             return result;
         }
     }

@@ -6,14 +6,12 @@ namespace NeoMonitor.Infrastructure.Mapping
 {
     public class AutoMapperConfig
     {
-        public static MapperConfiguration InitMap()
+        public static void InitMap(IMapperConfigurationExpression confExp)
         {
-            return new MapperConfiguration(cfg =>
-            {
-                cfg.CreateMap<Node, NodeViewModel>();
-                cfg.CreateMap<NodeViewModel, Node>();
-                cfg.CreateMap<NodeException, NodeException>();
-            });
+            confExp.CreateMap<Node, NodeViewModel>();
+            confExp.CreateMap<NodeViewModel, Node>();
+            confExp.CreateMap<NodeException, NodeException>();
+            confExp.CreateMap<NodeException, NodeExceptionViewModel>();
         }
     }
 }

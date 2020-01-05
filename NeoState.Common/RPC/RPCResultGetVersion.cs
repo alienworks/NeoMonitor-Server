@@ -1,16 +1,16 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace NeoState.Common.RPC
 {
     public class RPCResultGetVersion
     {
-        [JsonProperty(PropertyName = "port")]
+        [JsonPropertyName("port")]
         public uint Port { get; set; }
 
-        [JsonProperty(PropertyName = "nonce")]
+        [JsonPropertyName("nonce")]
         public uint Nonce { get; set; }
 
-        [JsonProperty(PropertyName = "useragent")]
+        [JsonPropertyName("useragent")]
         public string Useragent { get; set; }
     }
 }

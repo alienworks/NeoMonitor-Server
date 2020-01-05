@@ -1,14 +1,14 @@
 ﻿using System;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 
 namespace NeoState.Common.RPC
 {
     public class RPCRequestBody : RPCBaseBody
     {
-        [JsonProperty(PropertyName = "method")]
+        [JsonPropertyName("method")]
         public string Method { get; set; }
 
-        [JsonProperty(PropertyName = "params")]
+        [JsonPropertyName("params")]
         public string[] Params { get; set; }
 
         public RPCRequestBody() : this("getblockcount")
