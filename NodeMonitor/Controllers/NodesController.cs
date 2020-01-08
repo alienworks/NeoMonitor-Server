@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NeoMonitor.Data.Models;
@@ -15,11 +17,13 @@ namespace NodeMonitor.Controllers
         //private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
+        private readonly RPCNodeCaller _rPCNodeCaller;
         private readonly NodeSynchronizer _nodeSynchronizer;
         private readonly List<NodeViewModel> _nodes;
         private readonly List<NodeException> _nodeExceptions;
 
         public NodesController(IMapper mapper,
+            RPCNodeCaller rPCNodeCaller,
             NodeSynchronizer nodeSynchronizer
             //IConfiguration configuration,
             //IHubContext<NodeHub> nodeHub
@@ -28,6 +32,7 @@ namespace NodeMonitor.Controllers
             //_configuration = configuration;
             _mapper = mapper;
 
+            _rPCNodeCaller = rPCNodeCaller;
             _nodeSynchronizer = nodeSynchronizer;
             _nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
             _nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
@@ -59,46 +64,30 @@ namespace NodeMonitor.Controllers
         {
             if (_nodeExceptions.Count < 1)
             {
-                return "[]";
+                return Ok("[]");
             }
             var node = _nodes.Find(n => n.Id == id);
             if (node is null)
             {
-                return "[]";
+                return Ok("[]");
             }
             string nodeUrl = node.Url;
             var nodeExps = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => _mapper.Map<NodeExceptionViewModel>(ex));
             string result = JsonSerializer.Serialize(nodeExps);
-            return result;
+            return Ok(result);
         }
 
-        // GET api/nodes/5
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> Get(int id)
-        //{
-        //    var end = DateTime.Now;
-        //    var start = end.AddMonths(-3);
-
-        //    var result = new JArray();
-        //    try
-        //    {
-        //        string nodeUrl = _ctx.Nodes.Single(n => n.Id == id).Url;
-        //        await _ctx.NodeExceptionList.Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Url == nodeUrl && ex.Intervals > exceptionFilter).ForEachAsync(ex =>
-        //        {
-        //            var jNode = new JObject {
-        //                { "id", ex.Id },
-        //                { "NodeName", ex.Url },
-        //                { "ExceptionHeight", ex.ExceptionHeight },
-        //                { "ExceptionTime", ex.GenTime },
-        //                { "Intervals", ex.Intervals }
-        //            };
-        //            result.Add(jNode);
-        //        });
-        //        return Ok(result);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
+        [HttpGet("{id}/rawmempool")]
+        public async Task<ActionResult<IList<string>>> GetMemPool(int id)
+        {
+            var nodeVM = _nodes.Find(n => n.Id == id);
+            if (nodeVM is null)
+            {
+                return Ok(Array.Empty<string>());
+            }
+            var node = _mapper.Map(nodeVM, new Node());
+            var result = await _rPCNodeCaller.GetNodeMemPoolAsync(node);
+            return Ok(result);
+        }
     }
 }
