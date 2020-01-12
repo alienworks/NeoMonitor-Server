@@ -18,13 +18,13 @@ namespace NodeMonitor.Hubs
             _dbContext = dbContext;
         }
 
-        public Task RequestTestAsync(string msg) => Clients.All.ShowMsgAsync(nameof(RequestTestAsync) + "--> " + msg);
+        public Task RequestTestAsync(string msg) => Clients.All.ShowServerMsgAsync(nameof(RequestTestAsync) + "--> " + msg);
 
         public async Task GetRawMemPoolInfosByIdsAsync(IEnumerable<int> nodeIds)
         {
             if (nodeIds is null || !nodeIds.Any())
             {
-                await Clients.All.ShowMsgAsync("NodeIds cannot be empty.");
+                await Clients.All.ShowServerMsgAsync("NodeIds cannot be empty.");
                 return;
             }
             var ids = nodeIds.ToHashSet();

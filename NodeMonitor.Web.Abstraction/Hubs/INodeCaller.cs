@@ -4,7 +4,7 @@ namespace NodeMonitor.Web.Abstraction.Hubs
 {
     public interface INodeCaller
     {
-        Task ShowMsgAsync(string msg);
+        Task ShowServerMsgAsync(string msg);
 
         Task SendRawMemPoolInfosByIdsAsync(string json);
     }
