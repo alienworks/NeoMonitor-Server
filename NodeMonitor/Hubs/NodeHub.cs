@@ -18,7 +18,7 @@ namespace NodeMonitor.Hubs
             _dbContext = dbContext;
         }
 
-        public Task RequestTestAsync(string msg) => Clients.All.ShowMsgAsync(nameof(RequestTestAsync) + ':' + msg);
+        public Task RequestTestAsync(string msg) => Clients.All.ShowMsgAsync(nameof(RequestTestAsync) + "--> " + msg);
 
         public async Task GetRawMemPoolInfosByIdsAsync(IEnumerable<int> nodeIds)
         {
