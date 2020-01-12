@@ -45,10 +45,22 @@ namespace NodeMonitor
 
             services.AddSingleton<IHostedService, NotificationService>();
 
-            services.AddCors();
-            services.AddSignalR();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("DEV",
+                    builder =>
+                    {
+                        builder
+                            .WithOrigins("http://localhost:8111", "http://localhost:4200", "http://localhost:9876")
+                            .AllowCredentials()
+                            .AllowAnyHeader()
+                            .AllowAnyMethod();
+                    });
+            });
 
-            services.AddMvc(p => p.EnableEndpointRouting = false);
+            services.AddSignalR().AddMessagePackProtocol();
+
+            services.AddControllers(p => p.EnableEndpointRouting = true);
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment env, SeedData seeder)
@@ -57,24 +69,16 @@ namespace NodeMonitor
             {
                 appBuilder.UseDeveloperExceptionPage();
             }
-            appBuilder.UseCors(builder =>
-            {
-                builder
-                    .WithOrigins("http://localhost:8111", "http://localhost:4200", "http://localhost:9876")
-                    .AllowAnyMethod()
-                    .AllowAnyHeader()
-                    .AllowCredentials();
-            });
+            appBuilder.UseCors("DEV");
             appBuilder.UseStaticFiles();
             appBuilder.UseRouting()
                 .UseEndpoints(routeBuilder =>
                 {
+                    routeBuilder.MapControllers();
                     routeBuilder.MapHub<NodeHub>("/hubs/node");
                 });
 
             seeder.Initialize();
-
-            appBuilder.UseMvc();
         }
     }
 }

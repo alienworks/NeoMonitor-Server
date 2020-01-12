@@ -27,6 +27,8 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.Json" Version="3.1.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Protocols.MessagePack" Version="3.1.0" />
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.0" />
   </ItemGroup>
 
@@ -34,6 +36,7 @@
     <ProjectReference Include="..\NeoMonitor.Data\NeoMonitor.Data.csproj" />
     <ProjectReference Include="..\NeoMonitor.Infrastructure\NeoMonitor.Infrastructure.csproj" />
     <ProjectReference Include="..\NodeMonitor.ViewModels\NodeMonitor.ViewModels.csproj" />
+    <ProjectReference Include="..\NodeMonitor.Web.Abstraction\NodeMonitor.Web.Abstraction.csproj" />
   </ItemGroup>
 
   <ProjectExtensions><VisualStudio><UserProperties appsettings_1json__JsonSchema="" /></VisualStudio></ProjectExtensions>

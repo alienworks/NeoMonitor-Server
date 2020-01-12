@@ -1,0 +1,8 @@
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\bin\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.deps.json
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\bin\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.dll
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\bin\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.pdb
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\obj\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.csprojAssemblyReference.cache
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\obj\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.AssemblyInfoInputs.cache
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\obj\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.AssemblyInfo.cs
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\obj\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.dll
+G:\CodeRepos\NeoNodes\NodeMonitor.Web.Abstraction\obj\Debug\netcoreapp3.1\NodeMonitor.Web.Abstraction.pdb

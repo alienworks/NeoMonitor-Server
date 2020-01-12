@@ -5,8 +5,10 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using NeoMonitor.Data.Models;
 using NodeMonitor.Controllers.Base;
+using NodeMonitor.Hubs;
 using NodeMonitor.Infrastructure;
 using NodeMonitor.ViewModels;
 
@@ -22,11 +24,13 @@ namespace NodeMonitor.Controllers
         private readonly List<NodeViewModel> _nodes;
         private readonly List<NodeException> _nodeExceptions;
 
+        // private readonly IHubContext<NodeHub> _nodeHub;
+
         public NodesController(IMapper mapper,
             RPCNodeCaller rPCNodeCaller,
             NodeSynchronizer nodeSynchronizer
             //IConfiguration configuration,
-            //IHubContext<NodeHub> nodeHub
+            // IHubContext<NodeHub> nodeHub
             )
         {
             //_configuration = configuration;
@@ -36,6 +40,8 @@ namespace NodeMonitor.Controllers
             _nodeSynchronizer = nodeSynchronizer;
             _nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
             _nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
+
+            // _nodeHub = nodeHub;
         }
 
         [HttpGet]
@@ -77,7 +83,7 @@ namespace NodeMonitor.Controllers
             return Ok(result);
         }
 
-        [HttpGet("{id}/rawmempool")]
+        [HttpGet("rawmempool/{id}")]
         public async Task<ActionResult<IList<string>>> GetMemPool(int id)
         {
             var nodeVM = _nodes.Find(n => n.Id == id);
