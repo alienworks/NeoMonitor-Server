@@ -11,6 +11,7 @@ using NeoMonitor.Infrastructure.Mapping;
 using NodeMonitor.Hubs;
 using NodeMonitor.Infrastructure;
 using NodeMonitor.Services;
+using NodeMonitor.Web.Abstraction.DataLoaders;
 
 namespace NodeMonitor
 {
@@ -43,6 +44,9 @@ namespace NodeMonitor
             services.AddSingleton<LocationCaller>();
             services.AddSingleton<NodeSynchronizer>();
 
+            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
+            services.AddSingleton<NodeTicker>();
+
             services.AddSingleton<IHostedService, NotificationService>();
 
             services.AddCors(options =>
@@ -57,10 +61,8 @@ namespace NodeMonitor
                             .AllowAnyMethod();
                     });
             });
-
             services.AddSignalR().AddMessagePackProtocol();
-
-            services.AddControllers(p => p.EnableEndpointRouting = true);
+            services.AddControllers();
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment env, SeedData seeder)

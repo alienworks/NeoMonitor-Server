@@ -1,36 +1,49 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
-using NeoMonitor.Data;
 using NodeMonitor.Web.Abstraction.Hubs;
 
 namespace NodeMonitor.Hubs
 {
-    public class NodeHub : Hub<INodeCaller>
+    public class NodeHub : Hub<INodeClient>
     {
-        private readonly NeoMonitorContext _dbContext;
+        private readonly NodeTicker _ticker;
 
-        public NodeHub(NeoMonitorContext dbContext)
+        public NodeHub(NodeTicker ticker)
         {
-            _dbContext = dbContext;
+            _ticker = ticker;
         }
 
-        public Task RequestTestAsync(string msg) => Clients.All.ShowServerMsgAsync(nameof(RequestTestAsync) + "--> " + msg);
+        [HubMethodName("RequestTest")]
+        public Task RequestTestAsync(string msg) => Clients.All.ShowServerMsg(nameof(RequestTestAsync) + "--> " + msg);
 
+        [HubMethodName("GetRawMemPoolInfosByIds")]
         public async Task GetRawMemPoolInfosByIdsAsync(IEnumerable<int> nodeIds)
         {
             if (nodeIds is null || !nodeIds.Any())
             {
-                await Clients.All.ShowServerMsgAsync("NodeIds cannot be empty.");
+                await Clients.All.ShowServerMsg("NodeIds cannot be empty.");
                 return;
             }
             var ids = nodeIds.ToHashSet();
-            var nodes = _dbContext.Nodes.AsNoTracking().Where(n => ids.Contains(n.Id)).Select(n => new { n.Id, n.MemoryPool }).ToArray();
-            string json = JsonSerializer.Serialize(nodes);
-            await Clients.All.SendRawMemPoolInfosByIdsAsync(json);
+            var datas = Array.FindAll(_ticker.Datas, d => ids.Contains(d.Id));
+            string json = JsonSerializer.Serialize(datas);
+            await Clients.All.ReceiveRawMemPoolInfosByIds(json);
+        }
+
+        public override async Task OnConnectedAsync()
+        {
+            await Groups.AddToGroupAsync(Context.ConnectionId, nameof(NodeHub));
+            await base.OnConnectedAsync();
+        }
+
+        public override async Task OnDisconnectedAsync(Exception exception)
+        {
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, nameof(NodeHub));
+            await base.OnDisconnectedAsync(exception);
         }
     }
 }
