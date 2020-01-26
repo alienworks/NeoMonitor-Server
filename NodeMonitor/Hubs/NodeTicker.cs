@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -31,9 +32,9 @@ namespace NodeMonitor.Hubs
 
         private volatile RawMemPoolData[] _datas;
 
-        public TaskStatus TaskStatus => _runningTask.Status;
+        public IReadOnlyList<RawMemPoolData> Datas => _datas;
 
-        public RawMemPoolData[] Datas => _datas;
+        public TaskStatus TaskStatus => _runningTask.Status;
 
         public void Cancel() => _runningTaskTokenSource.Cancel();
 
@@ -45,7 +46,7 @@ namespace NodeMonitor.Hubs
                 {
                     break;
                 }
-                await Task.Delay(5000);
+                await Task.Delay(10 * 1000);
                 var latestDatas = await _dataLoader.LoadAsync().ConfigureAwait(false);
                 string json = JsonSerializer.Serialize(latestDatas);
                 _datas = latestDatas;

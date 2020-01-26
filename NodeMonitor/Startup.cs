@@ -32,12 +32,11 @@ namespace NodeMonitor
 
             services.AddHttpClient<ILocateIpService, IpStackService>();
 
-            services
-                .AddDbContext<NeoMonitorContext>(options =>
+            services.AddEntityFrameworkMySql();
+            services.AddDbContext<NeoMonitorContext>(options =>
                 {
                     options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-                }, ServiceLifetime.Scoped)
-                .AddEntityFrameworkMySql();
+                }, ServiceLifetime.Scoped);
 
             services.AddTransient<SeedData>();
             services.AddSingleton<RPCNodeCaller>();
@@ -61,7 +60,8 @@ namespace NodeMonitor
                             .AllowAnyMethod();
                     });
             });
-            services.AddSignalR().AddMessagePackProtocol();
+            services.AddSignalR()
+                .AddMessagePackProtocol();
             services.AddControllers();
         }
 

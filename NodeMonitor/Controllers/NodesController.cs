@@ -1,16 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
 using NeoMonitor.Data.Models;
 using NodeMonitor.Controllers.Base;
-using NodeMonitor.Hubs;
 using NodeMonitor.Infrastructure;
 using NodeMonitor.ViewModels;
+using NodeMonitor.Web.Abstraction.Models;
 
 namespace NodeMonitor.Controllers
 {
@@ -19,7 +16,8 @@ namespace NodeMonitor.Controllers
         //private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
 
-        private readonly RPCNodeCaller _rPCNodeCaller;
+        //private readonly RPCNodeCaller _rPCNodeCaller;
+
         private readonly NodeSynchronizer _nodeSynchronizer;
         private readonly List<NodeViewModel> _nodes;
         private readonly List<NodeException> _nodeExceptions;
@@ -27,7 +25,7 @@ namespace NodeMonitor.Controllers
         // private readonly IHubContext<NodeHub> _nodeHub;
 
         public NodesController(IMapper mapper,
-            RPCNodeCaller rPCNodeCaller,
+            //RPCNodeCaller rPCNodeCaller,
             NodeSynchronizer nodeSynchronizer
             //IConfiguration configuration,
             // IHubContext<NodeHub> nodeHub
@@ -36,7 +34,7 @@ namespace NodeMonitor.Controllers
             //_configuration = configuration;
             _mapper = mapper;
 
-            _rPCNodeCaller = rPCNodeCaller;
+            //_rPCNodeCaller = rPCNodeCaller;
             _nodeSynchronizer = nodeSynchronizer;
             _nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
             _nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
@@ -83,17 +81,12 @@ namespace NodeMonitor.Controllers
             return Ok(result);
         }
 
-        [HttpGet("rawmempool/{id}")]
-        public async Task<ActionResult<IList<string>>> GetMemPool(int id)
+        [HttpGet("rawmempool/list")]
+        public ActionResult<string> GetMemPoolList()
         {
-            var nodeVM = _nodes.Find(n => n.Id == id);
-            if (nodeVM is null)
-            {
-                return Ok(Array.Empty<string>());
-            }
-            var node = _mapper.Map(nodeVM, new Node());
-            var result = await _rPCNodeCaller.GetNodeMemPoolAsync(node);
-            return Ok(result);
+            var result = _nodeSynchronizer.CachedDbNodes.Select(p => new RawMemPoolData() { Id = p.Id, MemoryPool = p.MemoryPool });
+            string json = JsonSerializer.Serialize(result);
+            return Ok(json);
         }
     }
 }
