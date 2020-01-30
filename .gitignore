@@ -1,6 +1,6 @@
 # Self-Defined
+[Mm]igrations/
 /NodeMonitor/Properties/PublishProfiles/FolderProfile.pubxml.user
-/NeoMonitor.Data/Migrations
 /NeoMonitor.Data/script.txt
 
 ## Ignore Visual Studio temporary files, build results, and
