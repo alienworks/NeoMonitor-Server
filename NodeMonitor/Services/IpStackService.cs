@@ -25,7 +25,7 @@ namespace NodeMonitor.Services
             client.DefaultRequestHeaders.Add("DNT", "1");
             client.DefaultRequestHeaders.Add("Upgrade-Insecure-Requests", "1");
             client.DefaultRequestHeaders.Host = "api.ipstack.com";
-            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36");
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36");
 
             Client = client;
         }
