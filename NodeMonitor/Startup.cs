@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using NeoMonitor.Analysis.Web;
+using NeoMonitor.Analysis.Web.Services;
 using NeoMonitor.Data;
 using NeoMonitor.Data.Seed;
 using NeoMonitor.Infrastructure.Mapping;
@@ -31,11 +34,15 @@ namespace NodeMonitor
             services.AddAutoMapper(AutoMapperConfig.InitMap, typeof(AutoMapperConfig));
 
             services.AddHttpClient<ILocateIpService, IpStackService>();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            services.AddEntityFrameworkMySql();
             services.AddDbContext<NeoMonitorContext>(options =>
                 {
                     options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+                }, ServiceLifetime.Scoped);
+            services.AddDbContext<AnalysisDbContext>(options =>
+                {
+                    options.UseMySql(Configuration.GetConnectionString("AnalysisDevConnection"));
                 }, ServiceLifetime.Scoped);
 
             services.AddTransient<SeedData>();
@@ -47,6 +54,7 @@ namespace NodeMonitor
             services.AddSingleton<NodeTicker>();
 
             services.AddSingleton<IHostedService, NotificationService>();
+            services.AddSingleton<IHostedService, IpVisitorService>();
 
             services.AddCors(options =>
             {

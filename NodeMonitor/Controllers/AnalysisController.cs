@@ -1,21 +1,54 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using NeoMonitor.Analysis.Web.Services;
 
 namespace NodeMonitor.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class AnalysisController : ControllerBase
+    public sealed class AnalysisController : ControllerBase
     {
-        [HttpGet("totalVisitTimes")]
-        public ActionResult<int> GetTotalVisitTimes()
+        private readonly IHttpContextAccessor _httpContextAccessor;
+
+        private readonly IpVisitorService _ipVisitorService;
+
+        public AnalysisController(IHttpContextAccessor httpContextAccessor)
         {
-            return 1;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+        [HttpGet("register")]
+        public ActionResult<int> Register()
+        {
+            string myIp = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            if (string.IsNullOrEmpty(myIp))
+            {
+                return 1;
+            }
+            return _ipVisitorService.OnVisited(myIp);
+        }
+
+        [HttpGet("currentIpVisitTimesToday")]
+        public ActionResult<int> GetCurrentIpVisitTimesToday()
+        {
+            string myIp = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            if (string.IsNullOrEmpty(myIp))
+            {
+                return 0;
+            }
+            return _ipVisitorService.GetVisitTimesByIP(myIp);
+        }
+
+        [HttpGet("totalVisitTimes")]
+        public ActionResult<long> GetTotalVisitTimes()
+        {
+            return _ipVisitorService.TotalVisitTimes;
         }
 
         [HttpGet("totalIpCount")]
-        public ActionResult<int> GetTotalIpCount()
+        public ActionResult<long> GetTotalIpCount()
         {
-            return 1;
+            return _ipVisitorService.TotalIpCount;
         }
     }
 }
