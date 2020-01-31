@@ -12,9 +12,10 @@ namespace NodeMonitor.Controllers
 
         private readonly IpVisitorService _ipVisitorService;
 
-        public AnalysisController(IHttpContextAccessor httpContextAccessor)
+        public AnalysisController(IHttpContextAccessor httpContextAccessor, IpVisitorService ipVisitorService)
         {
             _httpContextAccessor = httpContextAccessor;
+            _ipVisitorService = ipVisitorService;
         }
 
         [HttpGet("register")]
@@ -28,27 +29,58 @@ namespace NodeMonitor.Controllers
             return _ipVisitorService.OnVisited(myIp);
         }
 
-        [HttpGet("currentIpVisitTimesToday")]
-        public ActionResult<int> GetCurrentIpVisitTimesToday()
+        #region Daily
+
+        [HttpGet("currentDailyVisitTimes")]
+        public ActionResult<int> GetCurrentDailyVisitTimes()
         {
             string myIp = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
             if (string.IsNullOrEmpty(myIp))
             {
                 return 0;
             }
-            return _ipVisitorService.GetVisitTimesByIP(myIp);
+            return _ipVisitorService.GetDailyVisitTimesByIP(myIp);
         }
 
-        [HttpGet("totalVisitTimes")]
-        public ActionResult<long> GetTotalVisitTimes()
+        [HttpGet("totalDailyVisitTimes")]
+        public ActionResult<long> GetTotalDailyVisitTimes()
         {
-            return _ipVisitorService.TotalVisitTimes;
+            return _ipVisitorService.TotalDailyVisitTimes;
         }
 
-        [HttpGet("totalIpCount")]
-        public ActionResult<long> GetTotalIpCount()
+        [HttpGet("totalDailyIpCount")]
+        public ActionResult<long> GetTotalDailyIpCount()
         {
-            return _ipVisitorService.TotalIpCount;
+            return _ipVisitorService.TotalDailyIpCount;
         }
+
+        #endregion Daily
+
+        #region Hourly
+
+        [HttpGet("currentHourlyVisitTimes")]
+        public ActionResult<int> GetCurrentHourlyVisitTimes()
+        {
+            string myIp = _httpContextAccessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            if (string.IsNullOrEmpty(myIp))
+            {
+                return 0;
+            }
+            return _ipVisitorService.GetHourlyVisitTimesByIP(myIp);
+        }
+
+        [HttpGet("totalHourlyVisitTimes")]
+        public ActionResult<long> GetTotalHourlyVisitTimes()
+        {
+            return _ipVisitorService.TotalHourlyVisitTimes;
+        }
+
+        [HttpGet("totalHourlyIpCount")]
+        public ActionResult<long> GetTotalHourlyIpCount()
+        {
+            return _ipVisitorService.TotalHourlyIpCount;
+        }
+
+        #endregion Hourly
     }
 }

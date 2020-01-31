@@ -49,12 +49,13 @@ namespace NodeMonitor
             services.AddSingleton<RPCNodeCaller>();
             services.AddSingleton<LocationCaller>();
             services.AddSingleton<NodeSynchronizer>();
+            services.AddSingleton<IpVisitorService>();
 
             services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
             services.AddSingleton<NodeTicker>();
 
-            services.AddSingleton<IHostedService, NotificationService>();
-            services.AddSingleton<IHostedService, IpVisitorService>();
+            services.AddSingleton<IHostedService, NotificationHostService>();
+            services.AddSingleton<IHostedService, IpVisitorHostService>();
 
             services.AddCors(options =>
             {

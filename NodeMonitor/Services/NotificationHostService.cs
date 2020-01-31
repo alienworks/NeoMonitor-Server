@@ -13,13 +13,13 @@ using NodeMonitor.ViewModels;
 
 namespace NodeMonitor.Services
 {
-    public class NotificationService : BackgroundService
+    public class NotificationHostService : BackgroundService
     {
         private readonly NodeSynchronizer _nodeSynchronizer;
         private readonly IHubContext<NodeHub> _nodeHub;
-        private readonly ILogger<NotificationService> _logger;
+        private readonly ILogger<NotificationHostService> _logger;
 
-        public NotificationService(NodeSynchronizer nodeSynchronizer, IHubContext<NodeHub> nodeHub, ILogger<NotificationService> logger)
+        public NotificationHostService(NodeSynchronizer nodeSynchronizer, IHubContext<NodeHub> nodeHub, ILogger<NotificationHostService> logger)
         {
             _nodeSynchronizer = nodeSynchronizer;
             _nodeHub = nodeHub;

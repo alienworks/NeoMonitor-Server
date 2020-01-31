@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using NeoMonitor.Analysis.Web.Models;
 
 namespace NeoMonitor.Analysis.Web
@@ -13,7 +14,9 @@ namespace NeoMonitor.Analysis.Web
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            var t = modelBuilder.Entity<IpVisitAnaData>();
+            var t = modelBuilder
+                .Entity<IpVisitAnaData>()
+                .ToTable(nameof(IpVisitors) + DateTime.UtcNow.ToString("_yyyyMM"));
             t.Property(p => p.Id)
                 .IsRequired()
                 .ValueGeneratedOnAdd();
@@ -22,8 +25,7 @@ namespace NeoMonitor.Analysis.Web
                 .IsRequired();
             t.HasKey(p => p.Id);
             t.HasIndex(p => p.Ip);
-            t.HasIndex(p => new { p.Year, p.Month, p.Day })
-                .HasName("Index_Date");
+            t.HasIndex(p => p.Day);
         }
     }
 }
