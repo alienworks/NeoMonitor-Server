@@ -25,7 +25,7 @@
 
 2. Open the ***Package Manager Console*** and set the default project as `Data\NeoMonitor.Data`.
 
-3. Execute the command line: `Add-Migration neonodes_local_v1.4.0`, and wait for the end of migration files creating.
+3. Execute the command line: `Add-Migration neonodes_local_v1.4.0 -c NeoMonitorContext`, and wait for the end of migration files creating.
 
 4. Execute the command line: `Update-Database`, and then check the database whether the data tables are created.
 
