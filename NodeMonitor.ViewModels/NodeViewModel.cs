@@ -12,7 +12,7 @@ namespace NodeMonitor.ViewModels
         public int Height { get; set; }
         public long Latency { get; set; }
         public int Peers { get; set; }
-        public int MemPool { get; set; }
+        public int MemoryPool { get; set; }
         public int ExceptionCount { get; set; }
 
         public string Locale { get; set; }
