@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NeoMonitor.Data.Models;
@@ -43,7 +42,7 @@ namespace NodeMonitor.Controllers
         }
 
         [HttpGet]
-        public IActionResult Get()
+        public ActionResult<IEnumerable<NodeViewModel>> Get()
         {
             if (_nodeExceptions.Count > 0)
             {
@@ -64,7 +63,7 @@ namespace NodeMonitor.Controllers
 
         // GET api/nodes/5
         [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        public ActionResult<IEnumerable<NodeExceptionViewModel>> Get(int id)
         {
             if (_nodeExceptions.Count < 1)
             {
@@ -77,16 +76,14 @@ namespace NodeMonitor.Controllers
             }
             string nodeUrl = node.Url;
             var nodeExps = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => _mapper.Map<NodeExceptionViewModel>(ex));
-            string result = JsonSerializer.Serialize(nodeExps);
-            return Ok(result);
+            return Ok(nodeExps);
         }
 
         [HttpGet("rawmempool/list")]
-        public ActionResult<string> GetMemPoolList()
+        public ActionResult<IEnumerable<RawMemPoolData>> GetMemPoolList()
         {
             var result = _nodeSynchronizer.CachedDbNodes.Select(p => new RawMemPoolData() { Id = p.Id, MemoryPool = p.MemoryPool });
-            string json = JsonSerializer.Serialize(result);
-            return Ok(json);
+            return Ok(result);
         }
     }
 }

@@ -72,6 +72,26 @@ namespace NodeMonitor
             services.AddSignalR()
                 .AddMessagePackProtocol();
             services.AddControllers();
+
+            services.AddSwaggerDocument(config =>
+            {
+                config.PostProcess = document =>
+                {
+                    document.Info.Version = "v1";
+                    document.Info.Title = "Neo-Monitor API";
+                    document.Info.Description = "APIs of NeoMonitor-Server";
+                    document.Info.TermsOfService = "None";
+                    document.Info.Contact = new NSwag.OpenApiContact
+                    {
+                        Name = "Github Repository",
+                        Email = string.Empty,
+                        Url = "https://github.com/alienworks/NeoMonitor-Server"
+                    };
+                    //document.Info.License = new NSwag.OpenApiLicense
+                    //{
+                    //};
+                };
+            });
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment env, SeedData seeder)
@@ -90,6 +110,9 @@ namespace NodeMonitor
                 });
 
             seeder.Initialize();
+
+            appBuilder.UseOpenApi();
+            appBuilder.UseSwaggerUi3();
         }
     }
 }
