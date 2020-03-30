@@ -16,7 +16,7 @@
 | :-: | :-: |
 | DotNet Core SDK | __3.1+__ |
 | EntityFramework Core | __3.1+__ |
-| Visual Studio 2019 | __16.4+__ |
+| Visual Studio 2019 | __16.5+__ |
 | MySQL | __8.0+__ |
 
 ### Steps
