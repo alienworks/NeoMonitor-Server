@@ -71,13 +71,11 @@ namespace NodeMonitor.Infrastructure
             return result;
         }
 
-        /// <summary>
-        /// Update node info
-        /// </summary>
-        /// <returns></returns>
-        /// <remarks>To save memory and be GC-friendly, it use the local collections for Action<T> cache. So don't use it in multi-thread environment, though it's thread-safe.</remarks>
         public async Task UpdateNodesInformationAsync()
         {
+            // To save memory and be GC-friendly, it use the local collections for Action<T> cache.
+            // So don't use it in multi-thread environment, even though it's thread-safe.
+
             using var scope = _scopeFactory.CreateScope();
             var dbCtx = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
             var dbNodes = dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToList();
