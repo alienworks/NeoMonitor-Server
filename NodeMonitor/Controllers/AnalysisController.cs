@@ -4,8 +4,8 @@ using NeoMonitor.Analysis.Web.Services;
 
 namespace NodeMonitor.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public sealed class AnalysisController : ControllerBase
     {
         private readonly IHttpContextAccessor _httpContextAccessor;

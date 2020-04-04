@@ -1,13 +1,11 @@
-﻿using AutoMapper;
+﻿using System;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NeoMonitor.Analysis.Web;
-using NeoMonitor.Analysis.Web.Services;
 using NeoMonitor.Data;
 using NeoMonitor.Data.Seed;
 using NeoMonitor.Infrastructure.Mapping;
@@ -29,34 +27,8 @@ namespace NodeMonitor
 
         public void ConfigureServices(IServiceCollection services)
         {
-            //services.Configure<NetSettings>(Configuration.GetSection("NetSettings"));
-
-            services.AddAutoMapper(AutoMapperConfig.InitMap, typeof(AutoMapperConfig));
-
-            services.AddHttpClient<ILocateIpService, IpStackService>();
-            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-
-            services.AddDbContext<NeoMonitorContext>(options =>
-                {
-                    options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
-                }, ServiceLifetime.Scoped);
-            services.AddDbContext<AnalysisDbContext>(options =>
-                {
-                    options.UseMySql(Configuration.GetConnectionString("AnalysisDevConnection"));
-                }, ServiceLifetime.Scoped);
-
-            services.AddTransient<SeedData>();
-            services.AddSingleton<RPCNodeCaller>();
-            services.AddSingleton<LocationCaller>();
-            services.AddSingleton<NodeSynchronizer>();
-            services.AddSingleton<IpVisitorService>();
-
-            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
-            services.AddSingleton<NodeTicker>();
-
-            services.AddSingleton<IHostedService, NotificationHostService>();
-            services.AddSingleton<IHostedService, IpVisitorHostService>();
-
+            // Basic Modules
+            services.AddHttpContextAccessor();
             services.AddCors(options =>
             {
                 options.AddPolicy("DEV",
@@ -69,10 +41,11 @@ namespace NodeMonitor
                             .AllowAnyMethod();
                     });
             });
+            services.AddControllers();
             services.AddSignalR()
                 .AddMessagePackProtocol();
-            services.AddControllers();
-
+            // Third-Party Models
+            services.AddAutoMapper(AutoMapperConfig.InitMap, typeof(AutoMapperConfig));
             services.AddSwaggerDocument(config =>
             {
                 config.PostProcess = document =>
@@ -91,6 +64,29 @@ namespace NodeMonitor
                     //{
                     //};
                 };
+            });
+            // Internal Modules
+            services.AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
+               .AddNeoJsonRpcAPIs();
+            services.AddHttpClient<ILocateIpService, IpStackService>();
+            services.AddDbContext<NeoMonitorContext>(options =>
+                {
+                    options.UseMySql(Configuration.GetConnectionString("DefaultConnection"));
+                }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+
+            services.AddTransient<SeedData>();
+            services.AddSingleton<RPCNodeCaller>();
+            services.AddSingleton<LocationCaller>();
+            services.AddSingleton<NodeSynchronizer>();
+
+            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
+            services.AddSingleton<NodeTicker>();
+
+            services.AddSingleton<IHostedService, NotificationHostService>();
+            // Analysis Modules
+            services.AddAnalysisWebModule(dbContextOptionsAction: options =>
+            {
+                options.UseMySql(Configuration.GetConnectionString("AnalysisDevConnection"));
             });
         }
 

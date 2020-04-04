@@ -45,6 +45,7 @@
     <ProjectReference Include="..\NeoMonitor.Analysis.Web\NeoMonitor.Analysis.Web.csproj" />
     <ProjectReference Include="..\NeoMonitor.Data\NeoMonitor.Data.csproj" />
     <ProjectReference Include="..\NeoMonitor.Infrastructure\NeoMonitor.Infrastructure.csproj" />
+    <ProjectReference Include="..\NeoMonitor.RpcAPIs\NeoMonitor.RpcAPIs.csproj" />
     <ProjectReference Include="..\NodeMonitor.ViewModels\NodeMonitor.ViewModels.csproj" />
     <ProjectReference Include="..\NodeMonitor.Web.Abstraction\NodeMonitor.Web.Abstraction.csproj" />
   </ItemGroup>

@@ -3,14 +3,15 @@ using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NeoMonitor.Data.Models;
-using NodeMonitor.Controllers.Base;
 using NodeMonitor.Infrastructure;
 using NodeMonitor.ViewModels;
 using NodeMonitor.Web.Abstraction.Models;
 
 namespace NodeMonitor.Controllers
 {
-    public class NodesController : BaseApiController
+    [ApiController]
+    [Route("api/[controller]")]
+    public class NodesController : ControllerBase
     {
         //private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
