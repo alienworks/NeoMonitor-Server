@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NeoMonitor.Basics.Models;
 using NeoMonitor.Common.IP;
 using NeoMonitor.DbContexts;
-using NeoMonitor.RpcAPIs;
+using NeoMonitor.Rpc.APIs;
 
 namespace NeoMonitor.Basics
 {

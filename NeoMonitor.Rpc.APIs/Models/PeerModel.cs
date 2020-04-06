@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NeoMonitor.RpcAPIs.Models
+namespace NeoMonitor.Rpc.APIs.Models
 {
     public sealed class PeerModel
     {

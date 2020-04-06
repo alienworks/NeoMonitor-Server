@@ -1,4 +1,4 @@
-﻿using NeoMonitor.RpcAPIs;
+﻿using NeoMonitor.Rpc.APIs;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

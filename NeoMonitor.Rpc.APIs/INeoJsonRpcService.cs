@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoMonitor.RpcAPIs.Models;
+using NeoMonitor.Rpc.APIs.Models;
 
-namespace NeoMonitor.RpcAPIs
+namespace NeoMonitor.Rpc.APIs
 {
     public interface INeoJsonRpcService
     {

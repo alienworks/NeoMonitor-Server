@@ -12,7 +12,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NeoMonitor.App.Abstractions\NeoMonitor.App.Abstractions.csproj" />
     <ProjectReference Include="..\NeoMonitor.Common\NeoMonitor.Common.csproj" />
-    <ProjectReference Include="..\NeoMonitor.RpcAPIs\NeoMonitor.RpcAPIs.csproj" />
+    <ProjectReference Include="..\NeoMonitor.Rpc.APIs\NeoMonitor.Rpc.APIs.csproj" />
   </ItemGroup>
 
   <ItemGroup>

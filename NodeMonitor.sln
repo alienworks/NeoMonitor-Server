@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Analysis", "Analysis", "{66
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.Analysis", "NeoMonitor.Analysis\NeoMonitor.Analysis.csproj", "{9293E700-8AA3-49A1-BF8A-F767F5819760}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.RpcAPIs", "NeoMonitor.RpcAPIs\NeoMonitor.RpcAPIs.csproj", "{6AB85CFA-2C5D-41C4-8B87-33E8A8763BCF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.Rpc.APIs", "NeoMonitor.Rpc.APIs\NeoMonitor.Rpc.APIs.csproj", "{6AB85CFA-2C5D-41C4-8B87-33E8A8763BCF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.Rpc", "NeoMonitor.Rpc\NeoMonitor.Rpc.csproj", "{F946FAD9-DFB0-4D7A-B0F2-ECF65A18DF4F}"
 EndProject
@@ -27,7 +27,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.App", "NeoMonito
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.App.Abstractions", "NeoMonitor.App.Abstractions\NeoMonitor.App.Abstractions.csproj", "{FD09FCB3-DF11-4189-AF59-5E53AA1BDE68}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NeoMonitor.Common", "NeoMonitor.Common\NeoMonitor.Common.csproj", "{3982B571-08A2-4623-A7A9-71A0DB86BCD3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NeoMonitor.Common", "NeoMonitor.Common\NeoMonitor.Common.csproj", "{3982B571-08A2-4623-A7A9-71A0DB86BCD3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

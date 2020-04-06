@@ -2,9 +2,9 @@
 using System.Threading.Tasks;
 using NeoMonitor.Rpc;
 using NeoMonitor.Rpc.Http;
-using NeoMonitor.RpcAPIs.Models;
+using NeoMonitor.Rpc.APIs.Models;
 
-namespace NeoMonitor.RpcAPIs
+namespace NeoMonitor.Rpc.APIs
 {
     internal sealed class NeoJsonRpcService : INeoJsonRpcService
     {
