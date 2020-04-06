@@ -6,7 +6,7 @@ using NeoMonitor.RpcAPIs.Models;
 
 namespace NeoMonitor.RpcAPIs
 {
-    public sealed class NeoJsonRpcService
+    internal sealed class NeoJsonRpcService : INeoJsonRpcService
     {
         private readonly RpcHttpClient _rpcHttpClient;
 
