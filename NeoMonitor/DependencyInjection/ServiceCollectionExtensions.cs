@@ -73,14 +73,16 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services.AddHttpClient<ILocateIpService, IpStackService>();
 
-            services.AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
-               .AddNeoJsonRpcAPIs();
+            services
+                .AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
+                .AddNeoJsonRpcAPIs();
 
             services.AddDbContext<NeoMonitorContext>(options =>
             {
                 options.UseMySql(configuration.GetConnectionString("DefaultConnection"));
             }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
+            services.AddSingleton<ScopedDbContextFactory>();
             services.AddSingleton<NodeSynchronizer>();
             services.AddSingleton<NodeTicker>();
             services.AddSingleton<IHostedService, NotificationHostService>();
