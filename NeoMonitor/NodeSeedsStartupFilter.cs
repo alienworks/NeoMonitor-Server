@@ -2,7 +2,6 @@
 using System.Linq;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.DependencyInjection;
 using NeoMonitor.App.Abstractions.Services;
 using NeoMonitor.DbContexts;
 
@@ -10,19 +9,19 @@ namespace NeoMonitor
 {
     public sealed class NodeSeedsStartupFilter : IStartupFilter
     {
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ScopedDbContextFactory _dbcontextFactory;
         private readonly INodeSeedsLoaderFactory _dataLoader;
 
-        public NodeSeedsStartupFilter(IServiceScopeFactory scopeFactory, INodeSeedsLoaderFactory dataLoader)
+        public NodeSeedsStartupFilter(ScopedDbContextFactory dbcontextFactory, INodeSeedsLoaderFactory dataLoader)
         {
-            _scopeFactory = scopeFactory;
+            _dbcontextFactory = dbcontextFactory;
             _dataLoader = dataLoader;
         }
 
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {
-            using var scope = _scopeFactory.CreateScope();
-            using var dbContext = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+            using var wrapper = _dbcontextFactory.CreateDbContext<NeoMonitorContext>();
+            var dbContext = wrapper.Context;
             if (!dbContext.Nodes.Any())
             {
                 var loader = _dataLoader.Build();
