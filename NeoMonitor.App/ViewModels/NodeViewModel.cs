@@ -5,6 +5,7 @@ namespace NeoMonitor.App.ViewModels
     public sealed class NodeViewModel : IEquatable<NodeViewModel>
     {
         public int Id { get; set; }
+
         public string Url { get; set; }
         public string IP { get; set; }
         public string Type { get; set; }

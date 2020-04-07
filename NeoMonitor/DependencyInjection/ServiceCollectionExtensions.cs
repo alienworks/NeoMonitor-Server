@@ -7,6 +7,7 @@ using Microsoft.Extensions.Hosting;
 using NeoMonitor;
 using NeoMonitor.App.Abstractions.Services;
 using NeoMonitor.App.Abstractions.Services.Data;
+using NeoMonitor.App.Profiles;
 using NeoMonitor.App.Services;
 using NeoMonitor.Basics;
 using NeoMonitor.Common.IP;
@@ -43,14 +44,13 @@ namespace Microsoft.Extensions.DependencyInjection
         public static INeoMonitorModuleBuilder AddThirdPartyServices(this INeoMonitorModuleBuilder builder)
         {
             var services = builder.Services;
-
-            services.AddAutoMapper(typeof(Startup).Assembly);
+            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
             services.AddSwaggerDocument(config =>
             {
                 config.PostProcess = document =>
                 {
                     document.Info.Version = "v1";
-                    document.Info.Title = "Neo-Monitor API";
+                    document.Info.Title = "NeoMonitor APIs";
                     document.Info.Description = "APIs of NeoMonitor-Server";
                     document.Info.TermsOfService = "None";
                     document.Info.Contact = new NSwag.OpenApiContact
@@ -71,24 +71,24 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var services = builder.Services;
 
+            services.AddHttpClient<ILocateIpService, IpStackService>();
+
             services.AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
                .AddNeoJsonRpcAPIs();
 
-            services.AddHttpClient<ILocateIpService, IpStackService>();
             services.AddDbContext<NeoMonitorContext>(options =>
             {
                 options.UseMySql(configuration.GetConnectionString("DefaultConnection"));
             }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
-            services.AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>();
             services.AddSingleton<NodeSynchronizer>();
-
-            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
             services.AddSingleton<NodeTicker>();
-
             services.AddSingleton<IHostedService, NotificationHostService>();
 
+            services.AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>();
+            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
             services.AddTransient<IStartupFilter, NodeSeedsStartupFilter>();
+
             return builder;
         }
 

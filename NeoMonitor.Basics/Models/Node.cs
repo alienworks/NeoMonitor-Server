@@ -14,7 +14,6 @@ namespace NeoMonitor.Basics.Models
         public NodeAddressType Type { get; set; }
         public string Version { get; set; }
         public int? Height { get; set; }
-        public DateTime LastUpdateTime { get; set; }
         public long Latency { get; set; }
         public int? Peers { get; set; }
         public int? MemoryPool { get; set; }
@@ -27,5 +26,7 @@ namespace NeoMonitor.Basics.Models
         public string FlagUrl { get; set; }
 
         public string Net { get; set; }
+
+        public DateTime LastUpdateTime { get; set; }
     }
 }
