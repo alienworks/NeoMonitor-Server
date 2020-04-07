@@ -31,6 +31,10 @@
     <ProjectReference Include="..\NeoMonitor.App\NeoMonitor.App.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Caches\" />
+  </ItemGroup>
+
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties appsettings_1json__JsonSchema="" />

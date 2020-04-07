@@ -1,6 +1,6 @@
 ﻿using NeoMonitor.Basics.Constants;
 
-namespace NeoMonitor.Config
+namespace NeoMonitor.Configs
 {
     public class NetSettings
     {
