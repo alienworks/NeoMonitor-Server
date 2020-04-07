@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using NeoMonitor.Basics.Models;
 using NeoMonitor.Common.IP;
 using NeoMonitor.DbContexts;
@@ -19,7 +18,7 @@ namespace NeoMonitor.Basics
     public class NodeSynchronizer
     {
         private readonly IConfiguration _configuration;
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ScopedDbContextFactory _dbContextFactory;
         //private readonly ILogger<NodeSynchronizer> _logger;
 
         private readonly IMapper _mapper;
@@ -33,7 +32,7 @@ namespace NeoMonitor.Basics
 
         public NodeSynchronizer(IMapper mapper,
         IConfiguration configuration,
-        IServiceScopeFactory scopeFactory,
+        ScopedDbContextFactory scopeFactory,
         ILocateIpService locationCaller,
         INeoJsonRpcService rPCNodeCaller
         //ILogger<NodeSynchronizer> logger,
@@ -41,7 +40,7 @@ namespace NeoMonitor.Basics
         {
             _mapper = mapper;
             _configuration = configuration;
-            _scopeFactory = scopeFactory;
+            _dbContextFactory = scopeFactory;
             //_logger = logger;
 
             _locateIpService = locationCaller;
@@ -77,8 +76,8 @@ namespace NeoMonitor.Basics
             // To save memory and be GC-friendly, it use the local collections for Action<T> cache.
             // So don't use it in multi-thread environment, even though it's thread-safe.
 
-            using var scope = _scopeFactory.CreateScope();
-            var dbCtx = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
+            var dbCtx = dbCtxWrapper.Context;
             var dbNodes = dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToList();
             if (dbNodes.Count < 1)
             {
@@ -121,8 +120,9 @@ namespace NeoMonitor.Basics
         private async Task CreateActions_UpdateDbNodeAsync(Node dbNode, SemaphoreSlim semaphore)
         {
             semaphore.Wait();
-            using var scope = _scopeFactory.CreateScope();
-            var scopedCtx = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+
+            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
+            var scopedCtx = dbCtxWrapper.Context;
 
             Task heightTask = GetNodeHeightAsync(scopedCtx, dbNode);
             Task versionTask = GetNodeVersionAsync(dbNode);
@@ -253,8 +253,8 @@ namespace NeoMonitor.Basics
 
         private void UpdateDbCache()
         {
-            using var scope = _scopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<NeoMonitorContext>();
+            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
+            var context = dbCtxWrapper.Context;
             CachedDbNodes = context.Nodes.AsNoTracking().Where(x => x.Type == NodeAddressType.RPC).ToList();
             DateTime end = DateTime.Now;
             DateTime start = end.AddMonths(-3);

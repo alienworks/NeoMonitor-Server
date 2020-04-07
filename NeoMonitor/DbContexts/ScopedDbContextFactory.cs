@@ -13,7 +13,7 @@ namespace NeoMonitor.DbContexts
             _scopedFactory = scopeFactory;
         }
 
-        public ScopedDbContextWrapper<T> CreateDbContext<T>() where T : DbContext
+        public ScopedDbContextWrapper<T> CreateDbContextScopedWrapper<T>() where T : DbContext
         {
             var scope = _scopedFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<T>();
@@ -46,8 +46,8 @@ namespace NeoMonitor.DbContexts
             {
                 if (disposing)
                 {
-                    _scope?.Dispose();
                     Context?.Dispose();
+                    _scope?.Dispose();
                 }
                 Context = null;
                 disposedValue = true;

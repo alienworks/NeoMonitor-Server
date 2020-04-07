@@ -20,7 +20,7 @@ namespace NeoMonitor
 
         public Action<IApplicationBuilder> Configure(Action<IApplicationBuilder> next)
         {
-            using var wrapper = _dbcontextFactory.CreateDbContext<NeoMonitorContext>();
+            using var wrapper = _dbcontextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbContext = wrapper.Context;
             if (!dbContext.Nodes.Any())
             {
