@@ -3,18 +3,19 @@ using AutoMapper;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Hosting;
 using NeoMonitor;
 using NeoMonitor.App.Abstractions.Services;
 using NeoMonitor.App.Abstractions.Services.Data;
 using NeoMonitor.App.Profiles;
 using NeoMonitor.App.Services;
-using NeoMonitor.Basics;
+using NeoMonitor.Caches;
 using NeoMonitor.Common.IP;
 using NeoMonitor.Common.IP.Services;
+using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services;
+using NeoMonitor.Services.Internal;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
@@ -71,25 +72,28 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             var services = builder.Services;
 
+            services
+                .AddInternalOptions(configuration)
+                .AddInternalDbContexts(configuration)
+                .AddInternalCaches();
+
             services.AddHttpClient<ILocateIpService, IpStackService>();
 
             services
                 .AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
                 .AddNeoJsonRpcAPIs();
 
-            services.AddDbContext<NeoMonitorContext>(options =>
-            {
-                options.UseMySql(configuration.GetConnectionString("DefaultConnection"));
-            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            services
+                .AddSingleton<ScopedDbContextFactory>()
+                .AddSingleton<NodeSynchronizer>()
+                .AddSingleton<NodeTicker>();
 
-            services.AddSingleton<ScopedDbContextFactory>();
-            services.AddSingleton<NodeSynchronizer>();
-            services.AddSingleton<NodeTicker>();
-            services.AddSingleton<IHostedService, NotificationHostService>();
+            services
+                .AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>()
+                .AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>()
+                .AddTransient<IStartupFilter, NodeSeedsStartupFilter>();
 
-            services.AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>();
-            services.AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>();
-            services.AddTransient<IStartupFilter, NodeSeedsStartupFilter>();
+            services.AddInternalHostedServices();
 
             return builder;
         }
@@ -103,6 +107,29 @@ namespace Microsoft.Extensions.DependencyInjection
                 options.UseMySql(configuration.GetConnectionString("AnalysisDevConnection"));
             });
             return builder;
+        }
+
+        private static IServiceCollection AddInternalCaches(this IServiceCollection services)
+        {
+            return services.AddSingleton<NodeDataCache>();
+        }
+
+        private static IServiceCollection AddInternalOptions(this IServiceCollection services, IConfiguration config)
+        {
+            return services.Configure<NodeSyncSettings>(config.GetSection(nameof(NodeSyncSettings)));
+        }
+
+        private static IServiceCollection AddInternalDbContexts(this IServiceCollection services, IConfiguration config)
+        {
+            return services.AddDbContext<NeoMonitorContext>(options =>
+            {
+                options.UseMySql(config.GetConnectionString("DefaultConnection"));
+            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+        }
+
+        private static IServiceCollection AddInternalHostedServices(this IServiceCollection services)
+        {
+            return services.AddHostedService<NodeSyncHostService>();
         }
     }
 }
