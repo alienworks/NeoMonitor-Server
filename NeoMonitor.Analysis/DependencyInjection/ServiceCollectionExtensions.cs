@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 using NeoMonitor.Analysis;
 using NeoMonitor.Analysis.Services;
 
@@ -11,7 +10,10 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IServiceCollection AddAnalysisWebModule(this IServiceCollection services, Action<DbContextOptionsBuilder> dbContextOptionsAction = null)
         {
             services.AddDbContext<AnalysisDbContext>(dbContextOptionsAction, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
-            services.AddSingleton<IHostedService, IpVisitorHostService>();
+
+            services
+                .AddSingleton<IpVisitorService>()
+                .AddHostedService<IpVisitorHostService>();
             return services;
         }
     }
