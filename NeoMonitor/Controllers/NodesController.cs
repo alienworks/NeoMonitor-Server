@@ -5,8 +5,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using NeoMonitor.App.Abstractions.Models;
 using NeoMonitor.App.ViewModels;
-using NeoMonitor.Basics;
 using NeoMonitor.Basics.Models;
+using NeoMonitor.Caches;
 
 namespace NeoMonitor.Controllers
 {
@@ -16,63 +16,67 @@ namespace NeoMonitor.Controllers
     {
         private readonly IMapper _mapper;
 
-        private readonly NodeSynchronizer _nodeSynchronizer;
-        private readonly List<NodeViewModel> _nodes;
-        private readonly List<NodeException> _nodeExceptions;
+        private readonly NodeDataCache _nodeDataCache;
 
-        public NodesController(IMapper mapper,
-            NodeSynchronizer nodeSynchronizer
+        public NodesController(
+            IMapper mapper,
+            NodeDataCache nodeDataCache
             )
         {
             _mapper = mapper;
-
-            _nodeSynchronizer = nodeSynchronizer;
-            _nodes = _nodeSynchronizer.GetCachedNodesAs<NodeViewModel>() ?? new List<NodeViewModel>();
-            _nodeExceptions = _nodeSynchronizer.GetCachedNodeExceptionsAs<NodeException>() ?? new List<NodeException>();
+            _nodeDataCache = nodeDataCache;
         }
 
         [HttpGet]
         public ActionResult<IEnumerable<NodeViewModel>> Get()
         {
-            if (_nodeExceptions.Count > 0)
+            NodeException[] nodeExps = _nodeDataCache.NodeExceptions;
+            NodeViewModel[] nodes = _mapper.Map<NodeViewModel[]>(_nodeDataCache.Nodes);
+            if (nodeExps.Length > 0)
             {
-                _nodes.ForEach(node =>
+                foreach (var node in nodes)
                 {
-                    node.ExceptionCount = _nodeExceptions.Count(ex => ex.Url == node.Url);
-                });
+                    node.ExceptionCount = nodeExps.Count(ex => ex.Url == node.Url);
+                }
             }
             else
             {
-                foreach (var node in _nodes)
+                foreach (var node in nodes)
                 {
                     node.ExceptionCount = 0;
                 }
             }
-            return Ok(_nodes);
+            return Ok(nodes);
         }
 
         // GET api/nodes/5
         [HttpGet("{id}")]
         public ActionResult<IEnumerable<NodeExceptionViewModel>> Get(int id)
         {
-            if (_nodeExceptions.Count < 1)
+            var nodeExps = _nodeDataCache.NodeExceptions;
+            if (nodeExps.Length < 1)
             {
                 return Ok(Array.Empty<NodeExceptionViewModel>());
             }
-            var node = _nodes.Find(n => n.Id == id);
+            var nodes = _nodeDataCache.Nodes;
+            if (nodes.Length < 1)
+            {
+                return Ok(Array.Empty<NodeExceptionViewModel>());
+            }
+            var node = Array.Find(nodes, n => n.Id == id);
             if (node is null)
             {
                 return Ok(Array.Empty<NodeExceptionViewModel>());
             }
-            string nodeUrl = node.Url;
-            var nodeExps = _nodeExceptions.Where(ex => ex.Url == nodeUrl).Select(ex => _mapper.Map<NodeExceptionViewModel>(ex));
-            return Ok(nodeExps);
+            var result = _mapper.Map<IEnumerable<NodeExceptionViewModel>>(nodeExps.Where(ex => ex.Url == node.Url));
+            return Ok(result);
         }
 
         [HttpGet("rawmempool/list")]
         public ActionResult<IEnumerable<RawMemPoolSizeModel>> GetMemPoolList()
         {
-            var result = _nodeSynchronizer.CachedDbNodes.Select(p => new RawMemPoolSizeModel() { Id = p.Id, MemoryPool = p.MemoryPool });
+            var nodes = _nodeDataCache.Nodes;
+            var result = nodes.Select(p => new RawMemPoolSizeModel() { Id = p.Id, MemoryPool = p.MemoryPool });
             return Ok(result);
         }
     }

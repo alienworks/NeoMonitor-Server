@@ -1,81 +1,57 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
+using NeoMonitor.Basics;
 using NeoMonitor.Basics.Models;
+using NeoMonitor.Caches;
 using NeoMonitor.Common.IP;
+using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
 using NeoMonitor.Rpc.APIs;
 
-namespace NeoMonitor.Basics
+namespace NeoMonitor.Services.Internal
 {
-    public class NodeSynchronizer
+    public sealed class NodeSynchronizer
     {
-        private readonly IConfiguration _configuration;
-        private readonly ScopedDbContextFactory _dbContextFactory;
-        //private readonly ILogger<NodeSynchronizer> _logger;
-
-        private readonly IMapper _mapper;
-
         private readonly ILocateIpService _locateIpService;
         private readonly INeoJsonRpcService _rpcService;
+        private readonly NodeSyncSettings _nodeSyncSettings;
+        private readonly ScopedDbContextFactory _dbContextFactory;
+        private readonly NodeDataCache _nodeDataCache;
 
         private readonly ConcurrentDictionary<int, Action<Node>> _nodeActionDict = new ConcurrentDictionary<int, Action<Node>>();
         private readonly ConcurrentDictionary<int, Action<NodeException>> _nodeExceptionActionDict = new ConcurrentDictionary<int, Action<NodeException>>();
         private readonly ConcurrentBag<Action<NeoMonitorContext>> _contextActions = new ConcurrentBag<Action<NeoMonitorContext>>();
 
-        public NodeSynchronizer(IMapper mapper,
-        IConfiguration configuration,
-        ScopedDbContextFactory scopeFactory,
-        ILocateIpService locationCaller,
-        INeoJsonRpcService rPCNodeCaller
-        //ILogger<NodeSynchronizer> logger,
+        public NodeSynchronizer(
+            IOptions<NodeSyncSettings> settingsOptions,
+            ILocateIpService locationCaller,
+            INeoJsonRpcService rPCNodeCaller,
+            ScopedDbContextFactory scopeFactory,
+            NodeDataCache nodeDataCache
         )
         {
-            _mapper = mapper;
-            _configuration = configuration;
-            _dbContextFactory = scopeFactory;
-            //_logger = logger;
-
             _locateIpService = locationCaller;
             _rpcService = rPCNodeCaller;
-
-            ExceptionFilter = _configuration.GetValue<int>("ExceptionFilter");
-
-            UpdateDbCache();
+            _nodeSyncSettings = settingsOptions.Value;
+            _dbContextFactory = scopeFactory;
+            _nodeDataCache = nodeDataCache;
         }
 
-        public int ExceptionFilter { get; }
-
-        public int ParallelDegree { get; } = 50;
-
-        public List<Node> CachedDbNodes { get; private set; }
-
-        public List<NodeException> CachedDbNodeExceptions { get; private set; }
-
-        public List<T> GetCachedNodesAs<T>()
+        public Task StartAsync()
         {
-            var result = _mapper.Map<List<Node>, List<T>>(CachedDbNodes);
-            return result;
-        }
-
-        public List<T> GetCachedNodeExceptionsAs<T>()
-        {
-            var result = _mapper.Map<List<NodeException>, List<T>>(CachedDbNodeExceptions);
-            return result;
+            return SyncDbCacheAsync();
         }
 
         public async Task UpdateNodesInformationAsync()
         {
             // To save memory and be GC-friendly, it use the local collections for Action<T> cache.
             // So don't use it in multi-thread environment, even though it's thread-safe.
-
             using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbCtx = dbCtxWrapper.Context;
             var dbNodes = dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToList();
@@ -83,15 +59,16 @@ namespace NeoMonitor.Basics
             {
                 return;
             }
-            using var semaphore = new SemaphoreSlim(ParallelDegree, ParallelDegree);
+            int parallelDegree = _nodeSyncSettings.ParallelDegree;
+            using var semaphore = new SemaphoreSlim(parallelDegree, parallelDegree);
             var tasks = dbNodes.Select(n => CreateActions_UpdateDbNodeAsync(n, semaphore)).ToArray();
             await Task.WhenAll(tasks);
 
-            ExecuteActions(dbCtx);
-            UpdateDbCache();
+            await ExecuteActionsAsync(dbCtx);
+            await SyncDbCacheAsync();
         }
 
-        private void ExecuteActions(NeoMonitorContext ctx)
+        private async Task ExecuteActionsAsync(NeoMonitorContext ctx)
         {
             foreach (var item in _nodeActionDict)
             {
@@ -113,7 +90,7 @@ namespace NeoMonitor.Basics
             {
                 item.Invoke(ctx);
             }
-            ctx.SaveChanges();
+            await ctx.SaveChangesAsync();
             ClearActionsCache();
         }
 
@@ -129,11 +106,6 @@ namespace NeoMonitor.Basics
             Task peersTask = GetNodePeersAsync(dbNode);
             Task mempoolTask = GetNodeMemPoolAsync(dbNode);
             await Task.WhenAll(heightTask, versionTask, peersTask, mempoolTask);
-
-            //await GetNodeHeightAsync(scopedCtx, dbNode);
-            //await GetNodeVersionAsync(dbNode);
-            //await GetNodePeersAsync(dbNode);
-            //await GetNodeMemPoolAsync(dbNode);
 
             if (!dbNode.Latitude.HasValue || !dbNode.Longitude.HasValue)
             {
@@ -251,21 +223,23 @@ namespace NeoMonitor.Basics
             }
         }
 
-        private void UpdateDbCache()
-        {
-            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
-            var context = dbCtxWrapper.Context;
-            CachedDbNodes = context.Nodes.AsNoTracking().Where(x => x.Type == NodeAddressType.RPC).ToList();
-            DateTime end = DateTime.Now;
-            DateTime start = end.AddMonths(-3);
-            CachedDbNodeExceptions = context.NodeExceptionList.AsNoTracking().Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Intervals > ExceptionFilter).ToList();
-        }
-
         private void ClearActionsCache()
         {
             _nodeActionDict.Clear();
             _nodeExceptionActionDict.Clear();
             _contextActions.Clear();
+        }
+
+        private async Task SyncDbCacheAsync()
+        {
+            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
+            var dbCtx = dbCtxWrapper.Context;
+            var nodes = await dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToArrayAsync();
+            _nodeDataCache.UpdateNodes(nodes);
+            DateTime end = DateTime.Now;
+            DateTime start = end.AddMonths(-3);
+            var nodeExps = await dbCtx.NodeExceptionList.AsNoTracking().Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Intervals > _nodeSyncSettings.ExceptionFilter).ToArrayAsync();
+            _nodeDataCache.UpdateNodeExceptions(nodeExps);
         }
 
         private static void AddOrUpdateAction<T>(ConcurrentDictionary<int, Action<T>> dict, int id, Action<T> act) where T : class
