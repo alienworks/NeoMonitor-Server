@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using NeoMonitor.App.Abstractions.Clients;
 using NeoMonitor.App.Abstractions.Services.Data;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.ViewModels;
 
 namespace NeoMonitor.Hubs
 {

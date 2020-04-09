@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.Models;
 
 namespace NeoMonitor.Caches
 {

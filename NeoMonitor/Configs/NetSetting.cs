@@ -1,4 +1,4 @@
-﻿using NeoMonitor.Basics.Constants;
+﻿using NeoMonitor.App.Abstractions.Constants;
 
 namespace NeoMonitor.Configs
 {

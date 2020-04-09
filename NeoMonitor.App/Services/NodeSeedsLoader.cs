@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
+using NeoMonitor.App.Abstractions.Constants;
+using NeoMonitor.App.Abstractions.Models;
 using NeoMonitor.App.Abstractions.Services;
-using NeoMonitor.Basics.Constants;
-using NeoMonitor.Basics.Models;
 
 namespace NeoMonitor.App.Services
 {

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.Models;
 
 namespace NeoMonitor.App.Abstractions.Services
 {

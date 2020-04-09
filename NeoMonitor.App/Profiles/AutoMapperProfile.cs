@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
-using NeoMonitor.App.ViewModels;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.App.Abstractions.ViewModels;
 
 namespace NeoMonitor.App.Profiles
 {

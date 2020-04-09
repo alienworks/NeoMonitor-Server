@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace NeoMonitor.App.ViewModels
+namespace NeoMonitor.App.Abstractions.ViewModels
 {
     public sealed class NodeViewModel : IEquatable<NodeViewModel>
     {

@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using NeoMonitor.App.Abstractions.Services.Data;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.ViewModels;
 using NeoMonitor.DbContexts;
 
 namespace NeoMonitor.Hubs

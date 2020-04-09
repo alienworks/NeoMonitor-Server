@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using NeoMonitor.App.ViewModels;
-using NeoMonitor.Basics.Models;
+using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.App.Abstractions.ViewModels;
 using NeoMonitor.Caches;
 
 namespace NeoMonitor.Controllers

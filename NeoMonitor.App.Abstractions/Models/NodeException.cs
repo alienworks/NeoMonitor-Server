@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeoMonitor.Basics.Models
+namespace NeoMonitor.App.Abstractions.Models
 {
     public class NodeException
     {
