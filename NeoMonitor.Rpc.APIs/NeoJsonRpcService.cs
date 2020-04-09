@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoMonitor.Rpc;
-using NeoMonitor.Rpc.Http;
 using NeoMonitor.Rpc.APIs.Models;
+using NeoMonitor.Rpc.Http;
 
 namespace NeoMonitor.Rpc.APIs
 {
