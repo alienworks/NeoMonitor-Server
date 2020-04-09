@@ -55,7 +55,7 @@ namespace NeoMonitor.Services.Internal
             // So don't use it in multi-thread environment, even though it's thread-safe.
             using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbCtx = dbCtxWrapper.Context;
-            var dbNodes = dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToList();
+            var dbNodes = await dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToListAsync();
             if (dbNodes.Count < 1)
             {
                 return;
