@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.Basics.Models;
 
 namespace NeoMonitor.App.Abstractions.Services.Data
 {
