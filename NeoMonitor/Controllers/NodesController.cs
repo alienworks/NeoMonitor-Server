@@ -16,14 +16,17 @@ namespace NeoMonitor.Controllers
         private readonly IMapper _mapper;
 
         private readonly NodeDataCache _nodeDataCache;
+        private readonly RawMemPoolDataCache _rawMemPoolDataCache;
 
         public NodesController(
             IMapper mapper,
-            NodeDataCache nodeDataCache
+            NodeDataCache nodeDataCache,
+            RawMemPoolDataCache rawMemPoolDataCache
             )
         {
             _mapper = mapper;
             _nodeDataCache = nodeDataCache;
+            _rawMemPoolDataCache = rawMemPoolDataCache;
         }
 
         [HttpGet]
@@ -71,12 +74,22 @@ namespace NeoMonitor.Controllers
             return Ok(result);
         }
 
-        [HttpGet("rawmempool/list")]
+        [HttpGet("rawmempool")]
         public ActionResult<IEnumerable<RawMemPoolSizeModel>> GetMemPoolList()
         {
             var nodes = _nodeDataCache.Nodes;
             var result = nodes.Select(p => new RawMemPoolSizeModel() { Id = p.Id, MemoryPool = p.MemoryPool });
             return Ok(result);
+        }
+
+        [HttpGet("rawmempool/{nodeId:long}")]
+        public ActionResult<RawMemPoolModel> GetMemPoolById(long nodeId)
+        {
+            if (_rawMemPoolDataCache.TryGetRawMemPoolItems(nodeId, out var items))
+            {
+                return Ok(items);
+            }
+            return Ok(Array.Empty<string>());
         }
     }
 }

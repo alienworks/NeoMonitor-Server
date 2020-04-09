@@ -109,7 +109,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IServiceCollection AddInternalCaches(this IServiceCollection services)
         {
-            return services.AddSingleton<NodeDataCache>();
+            return services
+                .AddSingleton<NodeDataCache>()
+                .AddSingleton<RawMemPoolDataCache>();
         }
 
         private static IServiceCollection AddInternalOptions(this IServiceCollection services, IConfiguration config)

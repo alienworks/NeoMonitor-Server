@@ -2,7 +2,7 @@
 
 namespace NeoMonitor.App.Abstractions.ViewModels
 {
-    public sealed class RawMemPoolData
+    public sealed class RawMemPoolModel
     {
         public long NodeId { get; set; }
 

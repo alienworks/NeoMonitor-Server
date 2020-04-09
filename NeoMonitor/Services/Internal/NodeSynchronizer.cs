@@ -24,6 +24,7 @@ namespace NeoMonitor.Services.Internal
         private readonly NodeSyncSettings _nodeSyncSettings;
         private readonly ScopedDbContextFactory _dbContextFactory;
         private readonly NodeDataCache _nodeDataCache;
+        private readonly RawMemPoolDataCache _rawMemPoolDataCache;
 
         private readonly ConcurrentDictionary<int, Action<Node>> _nodeActionDict = new ConcurrentDictionary<int, Action<Node>>();
         private readonly ConcurrentDictionary<int, Action<NodeException>> _nodeExceptionActionDict = new ConcurrentDictionary<int, Action<NodeException>>();
@@ -34,7 +35,8 @@ namespace NeoMonitor.Services.Internal
             ILocateIpService locationCaller,
             INeoJsonRpcService rPCNodeCaller,
             ScopedDbContextFactory scopeFactory,
-            NodeDataCache nodeDataCache
+            NodeDataCache nodeDataCache,
+            RawMemPoolDataCache rawMemPoolDataCache
         )
         {
             _locateIpService = locationCaller;
@@ -42,6 +44,7 @@ namespace NeoMonitor.Services.Internal
             _nodeSyncSettings = settingsOptions.Value;
             _dbContextFactory = scopeFactory;
             _nodeDataCache = nodeDataCache;
+            _rawMemPoolDataCache = rawMemPoolDataCache;
         }
 
         public Task StartAsync()
@@ -190,6 +193,7 @@ namespace NeoMonitor.Services.Internal
                 int nodeId = dbNode.Id;
                 int memPoolSize = newMempool.Count;
                 AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.MemoryPool = memPoolSize; });
+                _rawMemPoolDataCache.UpdateRawMemPoolData(nodeId, newMempool);
             }
         }
 
