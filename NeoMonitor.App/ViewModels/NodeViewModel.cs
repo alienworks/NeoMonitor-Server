@@ -40,7 +40,7 @@ namespace NeoMonitor.App.ViewModels
 
         public override int GetHashCode()
         {
-            return Url.GetHashCode();
+            return HashCode.Combine(Url);
         }
     }
 }
