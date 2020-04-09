@@ -9,8 +9,6 @@ using NeoMonitor.App.Abstractions.Services.Data;
 using NeoMonitor.App.Profiles;
 using NeoMonitor.App.Services;
 using NeoMonitor.Caches;
-using NeoMonitor.Common.IP;
-using NeoMonitor.Common.IP.Services;
 using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
 using NeoMonitor.Hubs;
@@ -77,8 +75,6 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddInternalDbContexts(configuration)
                 .AddInternalCaches();
 
-            services.AddHttpClient<ILocateIpService, IpStackService>();
-
             services
                 .AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
                 .AddNeoJsonRpcAPIs();
@@ -98,14 +94,15 @@ namespace Microsoft.Extensions.DependencyInjection
             return builder;
         }
 
-        public static INeoMonitorModuleBuilder AddAnalysisServices(this INeoMonitorModuleBuilder builder, IConfiguration configuration)
+        public static INeoMonitorModuleBuilder AddOtherModules(this INeoMonitorModuleBuilder builder, IConfiguration config)
         {
             var services = builder.Services;
-
-            services.AddAnalysisWebModule(dbContextOptionsAction: options =>
-            {
-                options.UseMySql(configuration.GetConnectionString("AnalysisDevConnection"));
-            });
+            services
+                .AddNeoCommonModule(config.GetSection("CommonModuleSettings"))
+                .AddNeoAnalysisWebModule(dbContextOptionsAction: options =>
+                {
+                    options.UseMySql(config.GetConnectionString("AnalysisDevConnection"));
+                });
             return builder;
         }
 

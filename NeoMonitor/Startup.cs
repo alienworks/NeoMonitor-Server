@@ -22,7 +22,7 @@ namespace NeoMonitor
                 .AddBasicServices()
                 .AddThirdPartyServices()
                 .AddInternalServices(Configuration)
-                .AddAnalysisServices(Configuration);
+                .AddOtherModules(Configuration);
         }
 
         public void Configure(IApplicationBuilder appBuilder, IWebHostEnvironment env)

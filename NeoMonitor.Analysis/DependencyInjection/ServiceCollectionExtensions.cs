@@ -7,7 +7,7 @@ namespace Microsoft.Extensions.DependencyInjection
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddAnalysisWebModule(this IServiceCollection services, Action<DbContextOptionsBuilder> dbContextOptionsAction = null)
+        public static IServiceCollection AddNeoAnalysisWebModule(this IServiceCollection services, Action<DbContextOptionsBuilder> dbContextOptionsAction = null)
         {
             services.AddDbContext<AnalysisDbContext>(dbContextOptionsAction, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
 
