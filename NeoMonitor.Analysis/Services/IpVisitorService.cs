@@ -4,8 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using NeoMonitor.Analysis.Models;
+using NeoMonitor.Shared.EntityFrameworkCore;
 
 namespace NeoMonitor.Analysis.Services
 {
@@ -14,9 +14,9 @@ namespace NeoMonitor.Analysis.Services
         private readonly DailyCache _dailyCache = new DailyCache();
         private readonly HourlyCache _hourlyCache = new HourlyCache();
 
-        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly ScopedDbContextFactory _scopeFactory;
 
-        public IpVisitorService(IServiceScopeFactory scopeFactory)
+        public IpVisitorService(ScopedDbContextFactory scopeFactory)
         {
             _scopeFactory = scopeFactory;
         }
@@ -57,9 +57,8 @@ namespace NeoMonitor.Analysis.Services
 
         internal async Task EnsureDatabaseCreatedAsync()
         {
-            using var scope = _scopeFactory.CreateScope();
-            using var context = scope.ServiceProvider.GetRequiredService<AnalysisDbContext>();
-            await context.Database.EnsureCreatedAsync();
+            using var wrapper = _scopeFactory.CreateDbContextScopedWrapper<AnalysisDbContext>();
+            await wrapper.Context.Database.EnsureCreatedAsync();
         }
 
         private sealed class DailyCache : CacheBase
@@ -72,15 +71,15 @@ namespace NeoMonitor.Analysis.Services
 
         private sealed class HourlyCache : CacheBase
         {
-            public async ValueTask OnUpdateAsync(IServiceScopeFactory scopeFactory, DateTime date)
+            public async ValueTask OnUpdateAsync(ScopedDbContextFactory factory, DateTime date)
             {
                 if (IsCacheEmpty)
                 {
                     return;
                 }
                 var dataOfYesterday = ReplaceCacheAndReturnOld();
-                using var scope = scopeFactory.CreateScope();
-                using var context = scope.ServiceProvider.GetRequiredService<AnalysisDbContext>();
+                using var wrapper = factory.CreateDbContextScopedWrapper<AnalysisDbContext>();
+                var context = wrapper.Context;
                 await context.IpVisitors.AddRangeAsync(dataOfYesterday.Select(p => new IpVisitAnaData()
                 {
                     Ip = p.Key,

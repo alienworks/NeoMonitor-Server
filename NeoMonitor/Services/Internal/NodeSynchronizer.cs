@@ -13,6 +13,7 @@ using NeoMonitor.Common.IP;
 using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
 using NeoMonitor.Rpc.APIs;
+using NeoMonitor.Shared.EntityFrameworkCore;
 
 namespace NeoMonitor.Services.Internal
 {

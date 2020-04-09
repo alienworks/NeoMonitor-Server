@@ -14,6 +14,7 @@ using NeoMonitor.DbContexts;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services;
 using NeoMonitor.Services.Internal;
+using NeoMonitor.Shared.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.DependencyInjection
 {

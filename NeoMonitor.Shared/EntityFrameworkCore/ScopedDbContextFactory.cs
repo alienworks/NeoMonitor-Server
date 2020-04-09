@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace NeoMonitor.DbContexts
+namespace NeoMonitor.Shared.EntityFrameworkCore
 {
     public sealed class ScopedDbContextFactory
     {

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using NeoMonitor.App.Abstractions.Services;
 using NeoMonitor.DbContexts;
+using NeoMonitor.Shared.EntityFrameworkCore;
 
 namespace NeoMonitor
 {
