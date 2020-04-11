@@ -79,8 +79,7 @@ namespace NeoMonitor.Controllers
         [HttpGet("rawmempool")]
         public async Task<ActionResult<IEnumerable<RawMemPoolSizeModel>>> GetMemPoolList()
         {
-            var nodes = await _nodeDataCache.GetNodesAsync();
-            var result = nodes.Select(p => new RawMemPoolSizeModel() { Id = p.Id, MemoryPool = p.MemoryPool });
+            var result = await _rawMemPoolDataCache.GetSizeArrayAsync();
             return Ok(result);
         }
 
