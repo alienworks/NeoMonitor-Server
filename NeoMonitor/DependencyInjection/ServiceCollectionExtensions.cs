@@ -12,7 +12,7 @@ using NeoMonitor.DbContexts;
 using NeoMonitor.Hubs;
 using NeoMonitor.Profiles;
 using NeoMonitor.Services;
-using NeoMonitor.Services.Internal;
+using NeoMonitor.Services.Data;
 using NeoMonitor.Services.Seeds;
 using NeoMonitor.Shared.EntityFrameworkCore;
 

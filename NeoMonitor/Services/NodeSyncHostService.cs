@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 using NeoMonitor.Abstractions.Caches;
 using NeoMonitor.Abstractions.ViewModels;
 using NeoMonitor.Hubs;
-using NeoMonitor.Services.Internal;
+using NeoMonitor.Services.Data;
 
 namespace NeoMonitor.Services
 {

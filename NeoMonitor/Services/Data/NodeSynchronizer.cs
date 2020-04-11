@@ -15,7 +15,7 @@ using NeoMonitor.DbContexts;
 using NeoMonitor.Rpc.APIs;
 using NeoMonitor.Shared.EntityFrameworkCore;
 
-namespace NeoMonitor.Services.Internal
+namespace NeoMonitor.Services.Data
 {
     public sealed class NodeSynchronizer
     {

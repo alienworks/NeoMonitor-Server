@@ -47,6 +47,10 @@
     <ProjectReference Include="..\NeoMonitor.Rpc.APIs\NeoMonitor.Rpc.APIs.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Services\SignalR\" />
+  </ItemGroup>
+
   <ProjectExtensions>
     <VisualStudio>
       <UserProperties appsettings_1json__JsonSchema="" />
