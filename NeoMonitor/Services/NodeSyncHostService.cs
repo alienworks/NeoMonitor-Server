@@ -55,9 +55,9 @@ namespace NeoMonitor.Services
                 _logger.LogDebug("[{0}] Syncing... ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 sw.Restart();
                 await _nodeSynchronizer.UpdateNodesInformationAsync();
-                // await BroadcastToClientsAsync();
                 sw.Stop();
                 _logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
+                await BroadcastToClientsAsync();
                 await Task.Delay(5000, cancelToken);
             }
         }
