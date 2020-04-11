@@ -57,12 +57,12 @@ namespace NeoMonitor.Services
                 await _nodeSynchronizer.UpdateNodesInformationAsync();
                 sw.Stop();
                 _logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
-                await BroadcastToClientsAsync();
+                await BroadcastToClientsAsync(cancelToken);
                 await Task.Delay(5000, cancelToken);
             }
         }
 
-        private async Task BroadcastToClientsAsync()
+        private async Task BroadcastToClientsAsync(CancellationToken cancelToken)
         {
             var nodes = await _nodeDataCache.GetNodesAsync();
             var nodeExps = await _nodeDataCache.GetNodeExceptionsAsync();
@@ -71,7 +71,7 @@ namespace NeoMonitor.Services
             {
                 n.ExceptionCount = nodeExps.Count(e => e.Url == n.Url);
             }
-            await _nodeHub.Clients.Group(NodeHub.NodesInfo_GroupName).SendAsync(nameof(INodeHubClient.UpdateNodes), nodeViews);
+            await _nodeHub.Clients.Group(NodeHub.NodesInfo_GroupName).SendAsync(nameof(INodeHubClient.UpdateNodes), nodeViews, cancellationToken: cancelToken);
         }
     }
 }

@@ -43,11 +43,11 @@ namespace NeoMonitor.Services
                 var datas = await _dataCache.GetArrayAsync();
                 var sizeInfo = datas.Select(p => new RawMemPoolSizeModel() { Id = p.NodeId, MemoryPool = p.Items.Count }).ToArray();
                 var tasks = new List<Task>(datas.Length + 1);
-                var sizeInfoTask = _nodeHubContext.Clients.Group(NodeHub.RawMemPoolSizeInfo_GroupName).SendAsync(nameof(INodeHubClient.UpdateRawMemPoolSizeInfo), sizeInfo);
+                var sizeInfoTask = _nodeHubContext.Clients.Group(NodeHub.RawMemPoolSizeInfo_GroupName).SendAsync(nameof(INodeHubClient.UpdateRawMemPoolSizeInfo), sizeInfo, cancellationToken: stoppingToken);
                 tasks.Add(sizeInfoTask);
                 foreach (var data in datas)
                 {
-                    var temp = _nodeHubContext.Clients.Group(NodeHub.RawMemPoolItemsInfo_GroupNamePrefix + data.NodeId.ToString()).SendAsync(nameof(INodeHubClient.UpdateRawMemPoolItems), data.Items);
+                    var temp = _nodeHubContext.Clients.Group(NodeHub.RawMemPoolItemsInfo_GroupNamePrefix + data.NodeId.ToString()).SendAsync(nameof(INodeHubClient.UpdateRawMemPoolItems), data.Items, cancellationToken: stoppingToken);
                     tasks.Add(temp);
                 }
                 await Task.WhenAll(tasks);
