@@ -6,7 +6,7 @@ namespace Microsoft.Extensions.DependencyInjection
     {
         public static INeoRpcServiceBuilder AddNeoJsonRpcAPIs(this INeoRpcServiceBuilder builder)
         {
-            builder.Services.AddTransient<INeoJsonRpcService, NeoJsonRpcService>();
+            builder.Services.AddSingleton<INeoJsonRpcService, NeoJsonRpcService>();
             return builder;
         }
     }
