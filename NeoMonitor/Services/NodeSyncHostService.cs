@@ -7,8 +7,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using NeoMonitor.App.Abstractions.Caches;
 using NeoMonitor.App.Abstractions.ViewModels;
-using NeoMonitor.Caches;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services.Internal;
 
@@ -22,14 +22,14 @@ namespace NeoMonitor.Services
         private readonly IMapper _mapper;
 
         private readonly NodeSynchronizer _nodeSynchronizer;
-        private readonly NodeDataCache _nodeDataCache;
+        private readonly INodeDataCache _nodeDataCache;
 
         public NodeSyncHostService(
             ILogger<NodeSyncHostService> logger,
             IHubContext<NodeHub> nodeHub,
             IMapper mapper,
             NodeSynchronizer nodeSynchronizer,
-            NodeDataCache nodeDataCache
+            INodeDataCache nodeDataCache
             )
         {
             _logger = logger;
@@ -61,10 +61,12 @@ namespace NeoMonitor.Services
             }
         }
 
-        private Task BroadcastNodesInfoAsync()
+        private async Task BroadcastNodesInfoAsync()
         {
-            var nodes = _mapper.Map<NodeViewModel[]>(_nodeDataCache.Nodes);
-            var nodeExps = _mapper.Map<NodeExceptionViewModel[]>(_nodeDataCache.NodeExceptions);
+            var sourceNodes = await _nodeDataCache.GetNodesAsync();
+            var nodes = _mapper.Map<NodeViewModel[]>(sourceNodes);
+            var sourceNodeExps = await _nodeDataCache.GetNodeExceptionsAsync();
+            var nodeExps = _mapper.Map<NodeExceptionViewModel[]>(sourceNodeExps);
             if (nodeExps.Length > 0)
             {
                 foreach (var node in nodes)
@@ -79,7 +81,7 @@ namespace NeoMonitor.Services
                     node.ExceptionCount = 0;
                 }
             }
-            return _nodeHub.Clients.All.SendAsync("Receive", nodes);
+            await _nodeHub.Clients.All.SendAsync("Receive", nodes);
         }
     }
 }

@@ -7,6 +7,7 @@
   <ItemGroup>
     <Folder Include="Clients\" />
     <Folder Include="Services\Data\" />
+    <Folder Include="DependencyInjection\" />
   </ItemGroup>
 
   <ItemGroup>

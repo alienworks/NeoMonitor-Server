@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using NeoMonitor.App.Abstractions.Caches;
 using NeoMonitor.App.Abstractions.Models;
 using NeoMonitor.App.Abstractions.ViewModels;
-using NeoMonitor.Caches;
 
 namespace NeoMonitor.Controllers
 {
@@ -15,13 +16,13 @@ namespace NeoMonitor.Controllers
     {
         private readonly IMapper _mapper;
 
-        private readonly NodeDataCache _nodeDataCache;
-        private readonly RawMemPoolDataCache _rawMemPoolDataCache;
+        private readonly INodeDataCache _nodeDataCache;
+        private readonly IRawMemPoolDataCache _rawMemPoolDataCache;
 
         public NodesController(
             IMapper mapper,
-            NodeDataCache nodeDataCache,
-            RawMemPoolDataCache rawMemPoolDataCache
+            INodeDataCache nodeDataCache,
+            IRawMemPoolDataCache rawMemPoolDataCache
             )
         {
             _mapper = mapper;
@@ -30,10 +31,11 @@ namespace NeoMonitor.Controllers
         }
 
         [HttpGet]
-        public ActionResult<IEnumerable<NodeViewModel>> Get()
+        public async Task<ActionResult<IEnumerable<NodeViewModel>>> Get()
         {
-            NodeException[] nodeExps = _nodeDataCache.NodeExceptions;
-            NodeViewModel[] nodes = _mapper.Map<NodeViewModel[]>(_nodeDataCache.Nodes);
+            NodeException[] nodeExps = await _nodeDataCache.GetNodeExceptionsAsync();
+            Node[] sourceNodes = await _nodeDataCache.GetNodesAsync();
+            NodeViewModel[] nodes = _mapper.Map<NodeViewModel[]>(sourceNodes);
             if (nodeExps.Length > 0)
             {
                 foreach (var node in nodes)
@@ -53,14 +55,14 @@ namespace NeoMonitor.Controllers
 
         // GET api/nodes/5
         [HttpGet("{id}")]
-        public ActionResult<IEnumerable<NodeExceptionViewModel>> Get(int id)
+        public async Task<ActionResult<IEnumerable<NodeExceptionViewModel>>> Get(int id)
         {
-            var nodeExps = _nodeDataCache.NodeExceptions;
+            var nodeExps = await _nodeDataCache.GetNodeExceptionsAsync();
             if (nodeExps.Length < 1)
             {
                 return Ok(Array.Empty<NodeExceptionViewModel>());
             }
-            var nodes = _nodeDataCache.Nodes;
+            var nodes = await _nodeDataCache.GetNodesAsync();
             if (nodes.Length < 1)
             {
                 return Ok(Array.Empty<NodeExceptionViewModel>());
@@ -75,17 +77,18 @@ namespace NeoMonitor.Controllers
         }
 
         [HttpGet("rawmempool")]
-        public ActionResult<IEnumerable<RawMemPoolSizeModel>> GetMemPoolList()
+        public async Task<ActionResult<IEnumerable<RawMemPoolSizeModel>>> GetMemPoolList()
         {
-            var nodes = _nodeDataCache.Nodes;
+            var nodes = await _nodeDataCache.GetNodesAsync();
             var result = nodes.Select(p => new RawMemPoolSizeModel() { Id = p.Id, MemoryPool = p.MemoryPool });
             return Ok(result);
         }
 
-        [HttpGet("rawmempool/{nodeId:long}")]
-        public ActionResult<RawMemPoolModel> GetMemPoolById(long nodeId)
+        [HttpGet("rawmempool/{nodeId:int}")]
+        public async Task<ActionResult<RawMemPoolModel>> GetMemPoolById(int nodeId)
         {
-            if (_rawMemPoolDataCache.TryGetRawMemPoolItems(nodeId, out var items))
+            var ok = await _rawMemPoolDataCache.TryGetAsync(nodeId, out var items);
+            if (ok)
             {
                 return Ok(items);
             }

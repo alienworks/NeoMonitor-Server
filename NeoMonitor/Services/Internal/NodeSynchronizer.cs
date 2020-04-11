@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using NeoMonitor.App.Abstractions;
+using NeoMonitor.App.Abstractions.Caches;
 using NeoMonitor.App.Abstractions.Models;
-using NeoMonitor.Caches;
 using NeoMonitor.Common.IP;
 using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
@@ -23,8 +23,8 @@ namespace NeoMonitor.Services.Internal
         private readonly INeoJsonRpcService _rpcService;
         private readonly NodeSyncSettings _nodeSyncSettings;
         private readonly ScopedDbContextFactory _dbContextFactory;
-        private readonly NodeDataCache _nodeDataCache;
-        private readonly RawMemPoolDataCache _rawMemPoolDataCache;
+        private readonly INodeDataCache _nodeDataCache;
+        private readonly IRawMemPoolDataCache _rawMemPoolDataCache;
 
         private readonly ConcurrentDictionary<int, Action<Node>> _nodeActionDict = new ConcurrentDictionary<int, Action<Node>>();
         private readonly ConcurrentDictionary<int, Action<NodeException>> _nodeExceptionActionDict = new ConcurrentDictionary<int, Action<NodeException>>();
@@ -35,8 +35,8 @@ namespace NeoMonitor.Services.Internal
             ILocateIpService locationCaller,
             INeoJsonRpcService rPCNodeCaller,
             ScopedDbContextFactory scopeFactory,
-            NodeDataCache nodeDataCache,
-            RawMemPoolDataCache rawMemPoolDataCache
+            INodeDataCache nodeDataCache,
+            IRawMemPoolDataCache rawMemPoolDataCache
         )
         {
             _locateIpService = locationCaller;
@@ -193,7 +193,7 @@ namespace NeoMonitor.Services.Internal
                 int nodeId = dbNode.Id;
                 int memPoolSize = newMempool.Count;
                 AddOrUpdateAction(_nodeActionDict, nodeId, n => { n.MemoryPool = memPoolSize; });
-                _rawMemPoolDataCache.UpdateRawMemPoolData(nodeId, newMempool);
+                await _rawMemPoolDataCache.UpdateAsync(nodeId, newMempool);
             }
         }
 
@@ -240,11 +240,11 @@ namespace NeoMonitor.Services.Internal
             using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbCtx = dbCtxWrapper.Context;
             var nodes = await dbCtx.Nodes.AsNoTracking().Where(n => n.Type == NodeAddressType.RPC).ToArrayAsync();
-            _nodeDataCache.UpdateNodes(nodes);
+            await _nodeDataCache.UpdateNodesAsync(nodes);
             DateTime end = DateTime.Now;
             DateTime start = end.AddMonths(-3);
             var nodeExps = await dbCtx.NodeExceptionList.AsNoTracking().Where(ex => ex.GenTime > start && ex.GenTime < end && ex.Intervals > _nodeSyncSettings.ExceptionFilter).ToArrayAsync();
-            _nodeDataCache.UpdateNodeExceptions(nodeExps);
+            await _nodeDataCache.UpdateNodeExceptionsAsync(nodeExps);
         }
 
         private static void AddOrUpdateAction<T>(ConcurrentDictionary<int, Action<T>> dict, int id, Action<T> act) where T : class

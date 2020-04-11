@@ -4,8 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NeoMonitor;
+using NeoMonitor.App.Abstractions.Caches;
 using NeoMonitor.App.Abstractions.Services;
-using NeoMonitor.App.Abstractions.Services.Data;
 using NeoMonitor.App.Profiles;
 using NeoMonitor.App.Services;
 using NeoMonitor.Caches;
@@ -87,7 +87,6 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services
                 .AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>()
-                .AddTransient<IRawMemPoolDataLoader, DefaultRawMemPoolDataLoader>()
                 .AddTransient<IStartupFilter, NodeSeedsStartupFilter>();
 
             services.AddInternalHostedServices();
@@ -110,8 +109,8 @@ namespace Microsoft.Extensions.DependencyInjection
         private static IServiceCollection AddInternalCaches(this IServiceCollection services)
         {
             return services
-                .AddSingleton<NodeDataCache>()
-                .AddSingleton<RawMemPoolDataCache>();
+                .AddSingleton<INodeDataCache, NodeDataMemoryCache>()
+                .AddSingleton<IRawMemPoolDataCache, RawMemPoolDataMemoryCache>();
         }
 
         private static IServiceCollection AddInternalOptions(this IServiceCollection services, IConfiguration config)

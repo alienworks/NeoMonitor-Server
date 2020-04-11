@@ -4,23 +4,23 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
+using NeoMonitor.App.Abstractions.Caches;
 using NeoMonitor.App.Abstractions.Clients;
-using NeoMonitor.App.Abstractions.Services.Data;
 using NeoMonitor.App.Abstractions.ViewModels;
 
 namespace NeoMonitor.Hubs
 {
     public class NodeTicker
     {
-        private readonly IRawMemPoolDataLoader _dataLoader;
+        private readonly IRawMemPoolDataCache _dataCache;
         private readonly IHubContext<NodeHub> _hubContext;
 
         private readonly Task _runningTask;
         private readonly CancellationTokenSource _runningTaskTokenSource;
 
-        public NodeTicker(IRawMemPoolDataLoader dataLoader, IHubContext<NodeHub> hubContext)
+        public NodeTicker(IRawMemPoolDataCache dataCache, IHubContext<NodeHub> hubContext)
         {
-            _dataLoader = dataLoader;
+            _dataCache = dataCache;
             _hubContext = hubContext;
 
             _runningTaskTokenSource = new CancellationTokenSource();
@@ -47,7 +47,7 @@ namespace NeoMonitor.Hubs
                     break;
                 }
                 await Task.Delay(10 * 1000);
-                var latestDatas = await _dataLoader.LoadAsync().ConfigureAwait(false);
+                var latestDatas = await _dataCache.GetSizeArrayAsync();
                 string json = JsonSerializer.Serialize(latestDatas);
                 _datas = latestDatas;
                 await _hubContext.Clients.Group(nameof(NodeHub)).SendAsync(nameof(INodeClient.UpdateRawMemPoolInfos), json);
