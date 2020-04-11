@@ -16,6 +16,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Services\SignalR\**" />
+    <Content Remove="Services\SignalR\**" />
+    <EmbeddedResource Remove="Services\SignalR\**" />
+    <None Remove="Services\SignalR\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Resources\seed-mainnet.json" />
     <Content Remove="Resources\seed-testnet.json" />
   </ItemGroup>
@@ -45,10 +52,6 @@
     <ProjectReference Include="..\NeoMonitor.Analysis\NeoMonitor.Analysis.csproj" />
     <ProjectReference Include="..\NeoMonitor.Common\NeoMonitor.Common.csproj" />
     <ProjectReference Include="..\NeoMonitor.Rpc.APIs\NeoMonitor.Rpc.APIs.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Services\SignalR\" />
   </ItemGroup>
 
   <ProjectExtensions>
