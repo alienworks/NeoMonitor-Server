@@ -7,8 +7,8 @@ using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using NeoMonitor.App.Abstractions.Caches;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.ViewModels;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services.Internal;
 

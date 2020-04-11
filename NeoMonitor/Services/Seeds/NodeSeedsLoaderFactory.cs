@@ -1,6 +1,6 @@
-﻿using NeoMonitor.App.Abstractions.Services;
+﻿using NeoMonitor.Abstractions.Services;
 
-namespace NeoMonitor.App.Services
+namespace NeoMonitor.Services.Seeds
 {
     public sealed class NodeSeedsLoaderFactory : INodeSeedsLoaderFactory
     {

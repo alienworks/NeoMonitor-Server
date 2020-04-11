@@ -1,4 +1,4 @@
-﻿namespace NeoMonitor.App.Abstractions.ViewModels
+﻿namespace NeoMonitor.Abstractions.ViewModels
 {
     public sealed class RawMemPoolSizeModel
     {

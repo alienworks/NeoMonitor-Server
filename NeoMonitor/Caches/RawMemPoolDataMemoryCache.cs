@@ -3,8 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using NeoMonitor.App.Abstractions.Caches;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.ViewModels;
 
 namespace NeoMonitor.Caches
 {

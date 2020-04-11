@@ -1,4 +1,4 @@
-﻿namespace NeoMonitor.App.Abstractions
+﻿namespace NeoMonitor.Abstractions
 {
     public enum NodeAddressType
     {

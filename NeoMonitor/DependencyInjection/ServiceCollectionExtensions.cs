@@ -4,16 +4,16 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using NeoMonitor;
-using NeoMonitor.App.Abstractions.Caches;
-using NeoMonitor.App.Abstractions.Services;
-using NeoMonitor.App.Profiles;
-using NeoMonitor.App.Services;
+using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.Services;
 using NeoMonitor.Caches;
 using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
 using NeoMonitor.Hubs;
+using NeoMonitor.Profiles;
 using NeoMonitor.Services;
 using NeoMonitor.Services.Internal;
+using NeoMonitor.Services.Seeds;
 using NeoMonitor.Shared.EntityFrameworkCore;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -44,7 +44,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static INeoMonitorModuleBuilder AddThirdPartyServices(this INeoMonitorModuleBuilder builder)
         {
             var services = builder.Services;
-            services.AddAutoMapper(typeof(AutoMapperProfile).Assembly);
+            services.AddAutoMapper(typeof(AutoMapperProfile));
             services.AddSwaggerDocument(config =>
             {
                 config.PostProcess = document =>

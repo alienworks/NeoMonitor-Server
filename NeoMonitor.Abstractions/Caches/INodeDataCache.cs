@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.Abstractions.Models;
 
-namespace NeoMonitor.App.Abstractions.Caches
+namespace NeoMonitor.Abstractions.Caches
 {
     public interface INodeDataCache
     {

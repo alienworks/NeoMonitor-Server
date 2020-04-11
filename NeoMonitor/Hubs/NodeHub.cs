@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using NeoMonitor.App.Abstractions.Clients;
+using NeoMonitor.Abstractions.Clients;
 
 namespace NeoMonitor.Hubs
 {

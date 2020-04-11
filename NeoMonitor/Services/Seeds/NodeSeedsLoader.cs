@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
-using NeoMonitor.App.Abstractions.Constants;
-using NeoMonitor.App.Abstractions.Models;
-using NeoMonitor.App.Abstractions.Services;
+using NeoMonitor.Abstractions.Constants;
+using NeoMonitor.Abstractions.Models;
+using NeoMonitor.Abstractions.Services;
 
-namespace NeoMonitor.App.Services
+namespace NeoMonitor.Services.Seeds
 {
     internal sealed class NodeSeedsLoader : INodeSeedsLoader
     {

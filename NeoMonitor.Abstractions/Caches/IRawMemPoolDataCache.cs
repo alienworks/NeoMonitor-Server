@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.ViewModels;
 
-namespace NeoMonitor.App.Abstractions.Caches
+namespace NeoMonitor.Abstractions.Caches
 {
     public interface IRawMemPoolDataCache
     {

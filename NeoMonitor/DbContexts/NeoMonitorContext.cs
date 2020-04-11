@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.Abstractions.Models;
 
 namespace NeoMonitor.DbContexts
 {

@@ -1,8 +1,8 @@
 ﻿using AutoMapper;
-using NeoMonitor.App.Abstractions.Models;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.Models;
+using NeoMonitor.Abstractions.ViewModels;
 
-namespace NeoMonitor.App.Profiles
+namespace NeoMonitor.Profiles
 {
     public sealed class AutoMapperProfile : Profile
     {

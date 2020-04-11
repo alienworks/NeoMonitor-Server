@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using NeoMonitor.App.Abstractions.Models;
+using NeoMonitor.Abstractions.Models;
 
-namespace NeoMonitor.App.Abstractions.Services
+namespace NeoMonitor.Abstractions.Services
 {
     public interface INodeSeedsLoader
     {

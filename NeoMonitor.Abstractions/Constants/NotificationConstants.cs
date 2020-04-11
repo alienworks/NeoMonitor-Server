@@ -1,4 +1,4 @@
-﻿namespace NeoMonitor.App.Abstractions.Constants
+﻿namespace NeoMonitor.Abstractions.Constants
 {
     public static class NotificationConstants
     {

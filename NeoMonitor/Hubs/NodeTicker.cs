@@ -4,9 +4,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
-using NeoMonitor.App.Abstractions.Caches;
-using NeoMonitor.App.Abstractions.Clients;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.Clients;
+using NeoMonitor.Abstractions.ViewModels;
 
 namespace NeoMonitor.Hubs
 {

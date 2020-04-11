@@ -1,4 +1,4 @@
-﻿namespace NeoMonitor.App.Abstractions.Services
+﻿namespace NeoMonitor.Abstractions.Services
 {
     public interface INodeSeedsLoaderFactory
     {

@@ -4,9 +4,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using NeoMonitor.App.Abstractions.Caches;
-using NeoMonitor.App.Abstractions.Models;
-using NeoMonitor.App.Abstractions.ViewModels;
+using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.Models;
+using NeoMonitor.Abstractions.ViewModels;
 
 namespace NeoMonitor.Controllers
 {

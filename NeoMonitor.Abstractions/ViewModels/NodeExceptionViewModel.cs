@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 
-namespace NeoMonitor.App.Abstractions.ViewModels
+namespace NeoMonitor.Abstractions.ViewModels
 {
     public sealed class NodeExceptionViewModel
     {

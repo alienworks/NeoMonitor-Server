@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace NeoMonitor.App.Abstractions.ViewModels
+namespace NeoMonitor.Abstractions.ViewModels
 {
     public sealed class RawMemPoolModel
     {

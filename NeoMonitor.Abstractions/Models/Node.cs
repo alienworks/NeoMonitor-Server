@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace NeoMonitor.App.Abstractions.Models
+namespace NeoMonitor.Abstractions.Models
 {
     public class Node
     {
