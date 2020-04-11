@@ -85,7 +85,7 @@ namespace NeoMonitor.Controllers
         }
 
         [HttpGet("rawmempool/{nodeId:int}")]
-        public async Task<ActionResult<RawMemPoolModel>> GetMemPoolById(int nodeId)
+        public async Task<ActionResult<IList<string>>> GetMemPoolById(int nodeId)
         {
             var ok = await _rawMemPoolDataCache.TryGetAsync(nodeId, out var items);
             if (ok)
