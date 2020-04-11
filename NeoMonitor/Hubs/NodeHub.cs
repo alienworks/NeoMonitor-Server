@@ -7,6 +7,7 @@ namespace NeoMonitor.Hubs
 {
     public class NodeHub : Hub<INodeHubClient>
     {
+        public const string NodesInfo_GroupName = "NodesInfo";
         public const string RawMemPoolSizeInfo_GroupName = "RawMemPoolSizeInfo";
         public const string RawMemPoolItemsInfo_GroupNamePrefix = "RawMemPoolItemsInfo_";
 
@@ -15,6 +16,18 @@ namespace NeoMonitor.Hubs
         public NodeHub(IRawMemPoolDataCache dataCache)
         {
             _dataCache = dataCache;
+        }
+
+        public async Task SubscribeNodesInfo()
+        {
+            string clientId = Context.ConnectionId;
+            await Groups.AddToGroupAsync(clientId, NodesInfo_GroupName);
+        }
+
+        public async Task UnsubscribeNodesInfo()
+        {
+            string clientId = Context.ConnectionId;
+            await Groups.RemoveFromGroupAsync(clientId, NodesInfo_GroupName);
         }
 
         public async Task SubscribeRawMemPoolSizeInfo()

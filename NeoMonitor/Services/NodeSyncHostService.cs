@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -7,6 +8,8 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using NeoMonitor.Abstractions.Caches;
+using NeoMonitor.Abstractions.Clients.SignalR;
+using NeoMonitor.Abstractions.ViewModels;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services.Data;
 
@@ -59,9 +62,16 @@ namespace NeoMonitor.Services
             }
         }
 
-        private Task BroadcastToClientsAsync()
+        private async Task BroadcastToClientsAsync()
         {
-            return Task.CompletedTask;
+            var nodes = await _nodeDataCache.GetNodesAsync();
+            var nodeExps = await _nodeDataCache.GetNodeExceptionsAsync();
+            var nodeViews = _mapper.Map<NodeViewModel[]>(nodes);
+            foreach (var n in nodeViews)
+            {
+                n.ExceptionCount = nodeExps.Count(e => e.Url == n.Url);
+            }
+            await _nodeHub.Clients.Group(NodeHub.NodesInfo_GroupName).SendAsync(nameof(INodeHubClient.UpdateNodes), nodeViews);
         }
     }
 }
