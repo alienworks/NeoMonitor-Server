@@ -14,6 +14,12 @@ namespace NeoMonitor.Caches
 
         public IReadOnlyDictionary<int, RawMemPoolModel> RawMemPoolDatas => _rawMemPoolDatas;
 
+        public Task<bool> ContainsAsync(int key)
+        {
+            var result = _rawMemPoolDatas.ContainsKey(key);
+            return Task.FromResult(result);
+        }
+
         public Task<bool> TryGetAsync(int key, out List<string> items)
         {
             if (_rawMemPoolDatas.TryGetValue(key, out var data))

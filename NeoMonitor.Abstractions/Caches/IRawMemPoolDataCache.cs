@@ -7,6 +7,8 @@ namespace NeoMonitor.Abstractions.Caches
 {
     public interface IRawMemPoolDataCache
     {
+        Task<bool> ContainsAsync(int key);
+
         Task<bool> TryGetAsync(int key, out List<string> items);
 
         Task<RawMemPoolModel[]> GetArrayAsync(Func<RawMemPoolModel, bool> filter = null);

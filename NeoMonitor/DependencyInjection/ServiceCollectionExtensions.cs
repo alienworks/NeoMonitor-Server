@@ -9,7 +9,6 @@ using NeoMonitor.Abstractions.Services;
 using NeoMonitor.Caches;
 using NeoMonitor.Configs;
 using NeoMonitor.DbContexts;
-using NeoMonitor.Hubs;
 using NeoMonitor.Profiles;
 using NeoMonitor.Services;
 using NeoMonitor.Services.Data;
@@ -82,8 +81,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             services
                 .AddSingleton<ScopedDbContextFactory>()
-                .AddSingleton<NodeSynchronizer>()
-                .AddSingleton<NodeTicker>();
+                .AddSingleton<NodeSynchronizer>();
 
             services
                 .AddTransient<INodeSeedsLoaderFactory, NodeSeedsLoaderFactory>()
@@ -128,7 +126,9 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IServiceCollection AddInternalHostedServices(this IServiceCollection services)
         {
-            return services.AddHostedService<NodeSyncHostService>();
+            return services
+                .AddHostedService<NodeSyncHostService>()
+                .AddHostedService<RawMemPoolBroadcastHostService>();
         }
     }
 }
