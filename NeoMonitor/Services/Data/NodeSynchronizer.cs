@@ -49,7 +49,7 @@ namespace NeoMonitor.Services.Data
 
         public Task StartAsync()
         {
-            return SyncDbCacheAsync();
+            return SyncCacheFromDbAsync();
         }
 
         public async Task UpdateNodesInformationAsync()
@@ -68,11 +68,13 @@ namespace NeoMonitor.Services.Data
             var tasks = dbNodes.Select(n => CreateActions_UpdateDbNodeAsync(n, semaphore)).ToArray();
             await Task.WhenAll(tasks);
 
-            await ExecuteActionsAsync(dbCtx);
-            await SyncDbCacheAsync();
+            ExecuteActionsAsync(dbCtx);
+            await dbCtx.SaveChangesAsync();
+            await SyncCacheFromDbAsync();
+            ClearActionsCache();
         }
 
-        private async Task ExecuteActionsAsync(NeoMonitorContext ctx)
+        private void ExecuteActionsAsync(NeoMonitorContext ctx)
         {
             foreach (var item in _nodeActionDict)
             {
@@ -94,8 +96,6 @@ namespace NeoMonitor.Services.Data
             {
                 item.Invoke(ctx);
             }
-            await ctx.SaveChangesAsync();
-            ClearActionsCache();
         }
 
         private async Task CreateActions_UpdateDbNodeAsync(Node dbNode, SemaphoreSlim semaphore)
@@ -235,7 +235,7 @@ namespace NeoMonitor.Services.Data
             _contextActions.Clear();
         }
 
-        private async Task SyncDbCacheAsync()
+        private async Task SyncCacheFromDbAsync()
         {
             using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbCtx = dbCtxWrapper.Context;
