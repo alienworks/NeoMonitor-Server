@@ -23,7 +23,7 @@
 
 1. Check the *ConnectionStrings* among [appsettings.json](https://github.com/alienworks/NeoMonitor-Server/blob/master/NodeMonitor/appsettings.json). Replace it with your own setting if necessary.
 
-2. Open the ***Package Manager Console*** and set the default project as `Data\NeoMonitor.Data`.
+2. Open the ***Package Manager Console*** and set the default project as `Web\NeoMonitor`.
 
 3. Execute the command line: `Add-Migration neonodes_local_v1.4.0 -c NeoMonitorContext`, and wait for the end of migration files creating.
 
