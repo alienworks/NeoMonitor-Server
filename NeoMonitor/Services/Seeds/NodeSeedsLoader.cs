@@ -4,7 +4,6 @@ using System.Text.Json;
 using NeoMonitor.Abstractions.Constants;
 using NeoMonitor.Abstractions.Models;
 using NeoMonitor.Abstractions.Services;
-using NeoMonitor.Profiles;
 
 namespace NeoMonitor.Services.Seeds
 {
@@ -21,13 +20,11 @@ namespace NeoMonitor.Services.Seeds
         private List<Node> LoadFromJsonFile(params string[] nets)
         {
             var result = new List<Node>(64);
-            var jsonSerializerOptions = new JsonSerializerOptions() { AllowTrailingCommas = true, PropertyNameCaseInsensitive = true };
-            jsonSerializerOptions.Converters.Add(new NodeAddressTypeJsonConverter());
             foreach (string net in nets)
             {
-                string filePath = Path.Combine("Resources", string.Format(SeedJsonFileNameFormat, net.ToLower()));
-                var bytes = File.ReadAllBytes(filePath);
-                var temp = JsonSerializer.Deserialize<List<Node>>(bytes, jsonSerializerOptions);
+                string file = string.Format(SeedJsonFileNameFormat, net.ToLower());
+                var bytes = File.ReadAllBytes(file);
+                var temp = JsonSerializer.Deserialize<List<Node>>(bytes, new JsonSerializerOptions() { AllowTrailingCommas = true, PropertyNameCaseInsensitive = true });
                 temp.ForEach(n => n.Net = net);
                 result.AddRange(temp);
             }
