@@ -108,7 +108,8 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             return services
                 .AddSingleton<INodeDataCache, NodeDataMemoryCache>()
-                .AddSingleton<IRawMemPoolDataCache, RawMemPoolDataMemoryCache>();
+                .AddSingleton<IRawMemPoolDataCache, RawMemPoolDataMemoryCache>()
+                .AddSingleton<IMatrixDataCache, MatrixDateMemoryCache>();
         }
 
         private static IServiceCollection AddInternalOptions(this IServiceCollection services, IConfiguration config)
@@ -118,17 +119,23 @@ namespace Microsoft.Extensions.DependencyInjection
 
         private static IServiceCollection AddInternalDbContexts(this IServiceCollection services, IConfiguration config)
         {
-            return services.AddDbContext<NeoMonitorContext>(options =>
+            services.AddDbContext<NeoMonitorContext>(options =>
             {
                 options.UseMySql(config.GetConnectionString("DefaultConnection"));
             }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            services.AddDbContext<NeoMatrixDbContext>(options =>
+            {
+                options.UseMySql(config.GetConnectionString("MatrixConnection"));
+            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
+            return services;
         }
 
         private static IServiceCollection AddInternalHostedServices(this IServiceCollection services)
         {
             return services
                 .AddHostedService<NodeSyncHostService>()
-                .AddHostedService<RawMemPoolBroadcastHostService>();
+                .AddHostedService<RawMemPoolBroadcastHostService>()
+                .AddHostedService<MatrixSyncHostService>();
         }
     }
 }

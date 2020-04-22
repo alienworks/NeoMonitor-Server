@@ -11,6 +11,8 @@ namespace NeoMonitor.Profiles
             CreateMap<Node, NodeViewModel>()
                 .ForMember(view => view.Type, opt => opt.MapFrom(n => n.Type.ToString()));
             CreateMap<NodeException, NodeExceptionViewModel>();
+
+            CreateMap<NeoMatrixItemEntity, NeoMatrixItemViewModel>();
         }
     }
 }
