@@ -2,141 +2,141 @@
   {
     "url": "http://seed1.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "168.61.166.110"
   },
   {
     "url": "http://seed2.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "104.43.234.181"
   },
   {
     "url": "http://seed3.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "168.61.184.237"
   },
   {
     "url": "http://seed4.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "168.61.186.167"
   },
   {
     "url": "http://seed5.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "168.61.148.37"
   },
   {
     "url": "http://seed6.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "47.254.44.88"
   },
   {
     "url": "http://seed7.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "47.254.83.14"
   },
   {
     "url": "http://seed8.ngd.network:20332",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "47.254.43.76"
   },
   {
     "url": "http://seed9.ngd.network:20332",
     "location": "HongKong",
-    "locale": "hk",
+    "locale": "zh-HK",
     "type": "RPC",
     "ip": "47.91.225.117"
   },
   {
     "url": "http://seed10.ngd.network:20332",
     "location": "HongKong",
-    "locale": "hk",
+    "locale": "zh-HK",
     "type": "RPC",
     "ip": "47.52.159.228"
   },
   {
     "url": "https://seed11.ngd.network:20331",
     "location": "Singapore",
-    "locale": "sg",
+    "locale": "zh-SG",
     "type": "RPC",
     "ip": "13.76.173.63"
   },
   {
     "url": "https://seed12.ngd.network:20331",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "168.61.16.30"
   },
   {
     "url": "http://seed1.alienworks.io:20332",
-    "location": "India",
-    "locale": "in",
+    "location": "China",
+    "locale": "zh-CN",
     "type": "RPC",
     "ip": "147.139.5.18"
   },
   {
     "url": "http://seed2.alienworks.io:20332",
     "location": "United States",
-    "locale": "us",
-    "type": "RPC",
-    "ip": "47.252.82.32"
-  },
-  {
-    "url": "http://seed3.alienworks.io:20332",
-    "location": "China",
-    "locale": "cn",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "139.196.213.118"
   },
   {
     "url": "https://test1.cityofzion.io:443",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "13.58.169.218"
   },
   {
     "url": "https://test2.cityofzion.io:443",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "13.58.33.157"
   },
   {
     "url": "https://test3.cityofzion.io:443",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "18.222.161.128"
   },
   {
     "url": "https://test4.cityofzion.io:443",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "18.191.171.240"
   },
   {
     "url": "https://test5.cityofzion.io:443",
     "location": "United States",
-    "locale": "us",
+    "locale": "en-US",
     "type": "RPC",
     "ip": "18.222.168.189"
+  },
+  {
+    "url": "https://testnet.o3node.org",
+    "location": "Japan",
+    "locale": "ja-JP",
+    "type": "RPC",
+    "ip": "54.178.105.150"
   }
 ]
