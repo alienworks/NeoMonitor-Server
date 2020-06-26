@@ -1,6 +1,6 @@
 ﻿namespace NeoMonitor.Analysis.Models
 {
-    public sealed class IpVisitAnaData
+    public sealed class IpVisitData
     {
         public long Id { get; set; }
 

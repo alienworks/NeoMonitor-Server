@@ -80,7 +80,7 @@ namespace NeoMonitor.Analysis.Services
                 var dataOfYesterday = ReplaceCacheAndReturnOld();
                 using var wrapper = factory.CreateDbContextScopedWrapper<AnalysisDbContext>();
                 var context = wrapper.Context;
-                await context.IpVisitors.AddRangeAsync(dataOfYesterday.Select(p => new IpVisitAnaData()
+                await context.IpVisitors.AddRangeAsync(dataOfYesterday.Select(p => new IpVisitData()
                 {
                     Ip = p.Key,
                     Times = p.Value,

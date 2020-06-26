@@ -10,12 +10,12 @@ namespace NeoMonitor.Analysis
         {
         }
 
-        public DbSet<IpVisitAnaData> IpVisitors { get; set; }
+        public DbSet<IpVisitData> IpVisitors { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var t = modelBuilder
-                .Entity<IpVisitAnaData>()
+                .Entity<IpVisitData>()
                 .ToTable(nameof(IpVisitors) + DateTime.UtcNow.ToString("_yyyyMM"));
             t.Property(p => p.Id)
                 .IsRequired()
