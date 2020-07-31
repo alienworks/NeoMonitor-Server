@@ -7,9 +7,11 @@ using AutoMapper;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NeoMonitor.Abstractions.Caches;
 using NeoMonitor.Abstractions.Clients.SignalR;
 using NeoMonitor.Abstractions.ViewModels;
+using NeoMonitor.Configs;
 using NeoMonitor.Hubs;
 using NeoMonitor.Services.Data;
 
@@ -25,12 +27,15 @@ namespace NeoMonitor.Services
         private readonly NodeSynchronizer _nodeSynchronizer;
         private readonly INodeDataCache _nodeDataCache;
 
+        private readonly NodeSyncSettings _nodeSyncSettings;
+
         public NodeSyncHostService(
             ILogger<NodeSyncHostService> logger,
             IHubContext<NodeHub> nodeHub,
             IMapper mapper,
             NodeSynchronizer nodeSynchronizer,
-            INodeDataCache nodeDataCache
+            INodeDataCache nodeDataCache,
+            IOptions<NodeSyncSettings> nodeSyncSettingsOption
             )
         {
             _logger = logger;
@@ -38,6 +43,7 @@ namespace NeoMonitor.Services
             _mapper = mapper;
             _nodeSynchronizer = nodeSynchronizer;
             _nodeDataCache = nodeDataCache;
+            _nodeSyncSettings = nodeSyncSettingsOption.Value;
         }
 
         public override async Task StartAsync(CancellationToken cancellationToken)
@@ -58,7 +64,10 @@ namespace NeoMonitor.Services
                 sw.Stop();
                 _logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
                 await BroadcastToClientsAsync(cancelToken);
-                await Task.Delay(5000, cancelToken);
+                if (_nodeSyncSettings.HostExecuteIntervalMilliseconds > 0)
+                {
+                    await Task.Delay(_nodeSyncSettings.HostExecuteIntervalMilliseconds, cancelToken);
+                }
             }
         }
 

@@ -22,7 +22,14 @@ namespace Microsoft.Extensions.DependencyInjection
             configure?.Invoke(config);
             services
                 .AddSingleton(config)
-                .AddHttpClient<RpcHttpClient>();
+                .AddHttpClient<RpcHttpClient>()
+                .ConfigureHttpClient(p =>
+                {
+                    if (config.DefaultTimeout.HasValue)
+                    {
+                        p.Timeout = config.DefaultTimeout.Value;
+                    }
+                });
             return new NeoRpcServiceBuilder(services);
         }
     }

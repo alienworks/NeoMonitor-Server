@@ -76,7 +76,15 @@ namespace Microsoft.Extensions.DependencyInjection
                 .AddInternalCaches();
 
             services
-                .AddNeoRpcHttpClient(c => c.ApiVersion = new Version(2, 0))
+                .AddNeoRpcHttpClient(c =>
+                {
+                    int? timeoutMilliseconds = configuration.GetValue<int?>("HttpClientTimeoutMilliseconds");
+                    if (timeoutMilliseconds > 0)
+                    {
+                        c.DefaultTimeout = TimeSpan.FromMilliseconds(timeoutMilliseconds.Value);
+                    }
+                    c.ApiVersion = new Version(2, 0);
+                })
                 .AddNeoJsonRpcAPIs();
 
             services

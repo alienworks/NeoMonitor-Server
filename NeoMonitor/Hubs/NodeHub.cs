@@ -44,7 +44,7 @@ namespace NeoMonitor.Hubs
 
         public async Task SubscribeRawMemPoolItemsInfo(string nodeIdStr)
         {
-            var valid = await CheckNodeIdValidAsync(nodeIdStr);
+            var valid = await CheckNodeIdValidAsync(nodeIdStr); 
             if (!valid)
             {
                 Context.Abort();
