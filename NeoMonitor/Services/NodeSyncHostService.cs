@@ -64,9 +64,9 @@ namespace NeoMonitor.Services
                 sw.Stop();
                 _logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
                 await BroadcastToClientsAsync(cancelToken);
-                if (_nodeSyncSettings.HostExecuteIntervalMilliseconds > 0)
+                if (_nodeSyncSettings.NodeInfoSyncIntervalMilliseconds > 0)
                 {
-                    await Task.Delay(_nodeSyncSettings.HostExecuteIntervalMilliseconds, cancelToken);
+                    await Task.Delay(_nodeSyncSettings.NodeInfoSyncIntervalMilliseconds, cancelToken);
                 }
             }
         }

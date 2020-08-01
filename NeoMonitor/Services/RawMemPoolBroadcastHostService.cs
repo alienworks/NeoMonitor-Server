@@ -1,13 +1,16 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using NeoMonitor.Abstractions.Caches;
 using NeoMonitor.Abstractions.Clients.SignalR;
 using NeoMonitor.Abstractions.ViewModels;
+using NeoMonitor.Configs;
 using NeoMonitor.Hubs;
 
 namespace NeoMonitor.Services
@@ -19,15 +22,20 @@ namespace NeoMonitor.Services
         private readonly IRawMemPoolDataCache _dataCache;
         private readonly IHubContext<NodeHub> _nodeHubContext;
 
+        private readonly NodeSyncSettings _nodeSyncSettings;
+
         public RawMemPoolBroadcastHostService(
             ILogger<RawMemPoolBroadcastHostService> logger,
             IRawMemPoolDataCache rawMemPoolDataCache,
-            IHubContext<NodeHub> nodeHubContext
+            IHubContext<NodeHub> nodeHubContext,
+            IOptions<NodeSyncSettings> nodeSyncSettingsOption
             )
         {
             _logger = logger;
             _dataCache = rawMemPoolDataCache;
             _nodeHubContext = nodeHubContext;
+
+            _nodeSyncSettings = nodeSyncSettingsOption.Value;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -39,7 +47,7 @@ namespace NeoMonitor.Services
                 {
                     break;
                 }
-                await Task.Delay(10 * 1000);
+                await Task.Delay(Math.Max(1, _nodeSyncSettings.RawMemPoolBroadcastIntervalSeconds) * 1000);
                 var datas = await _dataCache.GetArrayAsync();
                 var sizeInfo = datas.Select(p => new RawMemPoolSizeModel() { Id = p.NodeId, MemoryPool = p.Items.Count }).ToArray();
                 var tasks = new List<Task>(datas.Length + 1);
