@@ -1,5 +1,4 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -58,15 +57,16 @@ namespace NeoMonitor.Services
             Stopwatch sw = new Stopwatch();
             while (!cancelToken.IsCancellationRequested)
             {
-                _logger.LogDebug("[{0}] Syncing... ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
+                _logger.LogDebug("Start Syncing... ...");
                 sw.Restart();
                 await _nodeSynchronizer.UpdateNodesInformationAsync();
                 sw.Stop();
-                _logger.LogDebug("[{0}] UpdateBlockCountAsync: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
+                _logger.LogDebug("UpdateBlockCountAsync: {0}", sw.Elapsed.ToString());
                 await BroadcastToClientsAsync(cancelToken);
                 if (_nodeSyncSettings.NodeInfoSyncIntervalMilliseconds > 0)
                 {
                     await Task.Delay(_nodeSyncSettings.NodeInfoSyncIntervalMilliseconds, cancelToken);
+                    //GC.Collect();
                 }
             }
         }
