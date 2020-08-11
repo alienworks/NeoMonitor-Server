@@ -43,7 +43,7 @@ namespace NeoMonitor.Services
         protected override async Task ExecuteAsync(CancellationToken cancelToken)
         {
             _logger.LogDebug("[Service]--> {0} Executing.", nameof(MatrixSyncHostService));
-            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMatrixDbContext>();
+            using var dbCtxWrapper = _dbContextFactory.CreateDbContextScopedWrapper<NeoMonitorContext>();
             var dbCtx = dbCtxWrapper.Context;
             while (!cancelToken.IsCancellationRequested)
             {

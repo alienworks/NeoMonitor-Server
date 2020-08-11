@@ -129,11 +129,12 @@ namespace Microsoft.Extensions.DependencyInjection
         {
             services.AddDbContext<NeoMonitorContext>(options =>
             {
-                options.UseMySql(config.GetConnectionString("DefaultConnection"));
-            }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
-            services.AddDbContext<NeoMatrixDbContext>(options =>
-            {
-                options.UseMySql(config.GetConnectionString("MatrixConnection"));
+                options.UseMySql(config.GetConnectionString("DefaultConnection"), builder =>
+                {
+                    builder
+                    .EnableRetryOnFailure(3)
+                    .CommandTimeout(4);
+                });
             }, ServiceLifetime.Scoped, ServiceLifetime.Scoped);
             return services;
         }

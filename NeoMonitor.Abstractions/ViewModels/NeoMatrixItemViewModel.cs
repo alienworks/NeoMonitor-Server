@@ -10,7 +10,7 @@ namespace NeoMonitor.Abstractions.ViewModels
 
         public string Method { get; set; }
 
-        public bool Available { get; set; }
+        public byte Available { get; set; }
 
         public DateTime CreateTime { get; set; }
     }

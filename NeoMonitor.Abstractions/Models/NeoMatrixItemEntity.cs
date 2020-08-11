@@ -12,7 +12,7 @@ namespace NeoMonitor.Abstractions.Models
 
         public string Method { get; set; }
 
-        public bool Available { get; set; }
+        public byte Available { get; set; }
 
         public string Error { get; set; }
 
