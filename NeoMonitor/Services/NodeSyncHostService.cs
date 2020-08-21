@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -53,15 +54,15 @@ namespace NeoMonitor.Services
 
         protected override async Task ExecuteAsync(CancellationToken cancelToken)
         {
-            _logger.LogDebug("[Service]--> {0} Executing.", nameof(NodeSyncHostService));
+            _logger.LogInformation("[Service]--> {0} Executing.", nameof(NodeSyncHostService));
             Stopwatch sw = new Stopwatch();
             while (!cancelToken.IsCancellationRequested)
             {
-                _logger.LogDebug("Start Syncing... ...");
+                _logger.LogInformation("[{0}] Syncing... ...", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 sw.Restart();
                 await _nodeSynchronizer.UpdateNodesInformationAsync();
                 sw.Stop();
-                _logger.LogDebug("UpdateBlockCountAsync: {0}", sw.Elapsed.ToString());
+                _logger.LogInformation("[{0}] UpdateNodesPeriod: {1}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"), sw.Elapsed.ToString());
                 await BroadcastToClientsAsync(cancelToken);
                 if (_nodeSyncSettings.NodeInfoSyncIntervalMilliseconds > 0)
                 {
