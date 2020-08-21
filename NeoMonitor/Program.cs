@@ -33,11 +33,11 @@ namespace NeoMonitor
             {
                 webBuilder.UseStartup<Startup>();
             })
-            .ConfigureLogging(logging =>
-            {
-                logging.ClearProviders();
-                logging.SetMinimumLevel(LogLevel.Trace);
-            })
+            //.ConfigureLogging(logging =>
+            //{
+            //    logging.ClearProviders();
+            //    logging.SetMinimumLevel(LogLevel.Trace);
+            //})
             .UseNLog();
     }
 }
