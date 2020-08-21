@@ -27,8 +27,11 @@ namespace NeoMonitor
             {
                 var loader = _dataLoader.Build();
                 var seeds = loader.Load();
-                dbContext.AddRange(seeds);
-                dbContext.SaveChanges();
+                foreach (var seed in seeds)
+                {
+                    dbContext.Add(seed);
+                    dbContext.SaveChanges();
+                }
             }
             return next;
         }
