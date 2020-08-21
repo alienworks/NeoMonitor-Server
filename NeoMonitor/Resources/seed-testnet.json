@@ -88,13 +88,6 @@
     "location": "China",
     "locale": "zh-CN",
     "type": "RPC",
-    "ip": "147.139.5.18"
-  },
-  {
-    "url": "http://seed2.alienworks.io:20332",
-    "location": "United States",
-    "locale": "en-US",
-    "type": "RPC",
     "ip": "139.196.213.118"
   },
   {

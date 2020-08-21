@@ -113,13 +113,6 @@
   },
   {
     "url": "http://seed1.alienworks.io:10332",
-    "location": "India",
-    "locale": "en-IN",
-    "type": "RPC",
-    "ip": "147.139.5.18"
-  },
-  {
-    "url": "http://seed2.alienworks.io:10332",
     "location": "China",
     "locale": "zh-CN",
     "type": "RPC",
