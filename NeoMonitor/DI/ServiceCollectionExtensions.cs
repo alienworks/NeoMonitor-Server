@@ -28,7 +28,7 @@ namespace Microsoft.Extensions.DependencyInjection
                     builder =>
                     {
                         builder
-                            .WithOrigins("http://localhost:8111", "http://localhost:4200", "http://localhost:9876")
+                            .WithOrigins("http://localhost:4200", "http://neonodes.io", "http://www.neonodes.io", "http://test.neonodes.io", "http://dev.neonodes.io")
                             .AllowCredentials()
                             .AllowAnyHeader()
                             .AllowAnyMethod();
